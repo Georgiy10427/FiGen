@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="icon64">icons/icon64.png</file>
+        <file alias="icon64_ico">icons/icon64.ico</file>
+    </qresource>
+</RCC>
