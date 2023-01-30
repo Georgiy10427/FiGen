@@ -34,18 +34,21 @@ void test_triangle::test_3fronts_calculating()
         Triangle({{0, 3}, {1, 4}, {2, 5}}, {}).anglesAsMap().values(),
         QList<double>({37, 53, 90})
     );
-    QVERIFY(
-        Triangle(
-            {{0, 37}, {1, 40}, {2, 54}},
-            {}
-        ).anglesAsMap().values()
-        ==
+    QCOMPARE(
+        Triangle({{0, 37}, {1, 40}, {2, 54}}, {}).anglesAsMap().values(),
         QList<double>({43, 48, 89})
     );
 
     // Test equilateral triangle
     QCOMPARE(Triangle({{0, 10}, {1, 10}, {2, 10}}, {}).anglesAsMap().values(),
              QList<double>({60, 60, 60}));
+
+    // Test unvalid cases (some angle doens't match or 2 angles >= 90)
+    QCOMPARE(Triangle({{0, 10}, {1, 10}, {2, 10}}, {{0, 90}, {1, 90}}).anglesAsMap().values(),
+             QList<double>({90, 90}));
+
+    QCOMPARE(Triangle({{0, 10}, {1, 10}, {2, 10}}, {{0, 90}}).anglesAsMap().values(),
+             QList<double>({90}));
 }
 
 QTEST_APPLESS_MAIN(test_triangle)

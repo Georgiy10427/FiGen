@@ -44,6 +44,10 @@ void Triangle::addMissingInformation(QMap<int, double> fronts, QMap<int, double>
             calculateMissingAngles();
         }
     }
+    if(!validAvailableAngles(anglesAsMap()) || !validFronts(frontsAsMap()))
+    {
+        unpackFromMap(fronts, angles);
+    }
 }
 
 void Triangle::unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles)
@@ -243,20 +247,15 @@ void Triangle::fillRectangularTriangle()
 
 bool Triangle::validAvailableAngles(QMap<int, double> angles)
 {
-    bool existStraightAngle = false;
+    int sum = 0;
     for(auto angle : angles.values())
     {
-        if(angle >= 90)
-        {
-            if(existStraightAngle)
-            {
-                return false;
-            } else {
-                existStraightAngle = true;
-            }
-        }
+        sum += angle;
     }
-    return true;
+    if(sum == 180) return true;
+    else {
+        return 0;
+    }
 }
 
 bool Triangle::validFronts(QMap<int, double> fronts)
