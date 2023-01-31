@@ -252,9 +252,10 @@ bool Triangle::validAvailableAngles(QMap<int, double> angles)
     {
         sum += angle;
     }
-    if(sum == 180) return true;
+    if(sum == 180 && angles.size() == 3) return true;
+    else if(sum < 180 && angles.size() < 3) return true;
     else {
-        return 0;
+        return false;
     }
 }
 
