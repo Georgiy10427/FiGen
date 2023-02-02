@@ -15,10 +15,11 @@ class Triangle : private BaseFigure
 {
 public:
     Triangle();
-    Triangle(QMap<int, double> fronts, QMap<int, double> angles);
+    Triangle(QMap<int, double> fronts, QMap<int, double> angles,
+             int fronts_precision=0, int angles_precision=0);
 
     /* validators */
-    static bool validAvailableAngles(QMap<int, double> angles);
+    bool validAvailableAngles(QMap<int, double> angles);
     bool validFronts(QMap<int, double> fronts);
 
     /* properties */
@@ -34,6 +35,7 @@ public:
     double alpha, beta, gamma;
     double square;
     double circumscribedCircleRadius, inscribedCircleRadius;
+    int fronts_precision = 0, angles_precision = 0;
 private:
     void unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles);
 

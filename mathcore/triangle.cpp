@@ -1,14 +1,15 @@
 #include "triangle.hpp"
 
-// Добавить функцию для проверки существования треугольника с такими сторонами и углами
 
 Triangle::Triangle()
 {
 
 }
 
-Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles)
+Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles, int fronts_precision, int angles_precision)
 {
+    this->fronts_precision = fronts_precision;
+    this->angles_precision = angles_precision;
     unpackFromMap(fronts, angles);
     addMissingInformation(fronts, angles);
 }
@@ -47,6 +48,13 @@ void Triangle::addMissingInformation(QMap<int, double> fronts, QMap<int, double>
     if(!validAvailableAngles(anglesAsMap()) || !validFronts(frontsAsMap()))
     {
         unpackFromMap(fronts, angles);
+    } else {
+        kRound(&alpha, angles_precision);
+        kRound(&beta, angles_precision);
+        gamma = 180-(alpha+beta);
+        kRound(&a, fronts_precision);
+        kRound(&b, fronts_precision);
+        kRound(&c, fronts_precision);
     }
 }
 
@@ -71,21 +79,18 @@ void Triangle::calculateMissingAngles()
         this->alpha = toDegrees(
             acos( (b*b+c*c-a*a)/(2*b*c) )
         );
-        kRound(&alpha, kAnglesDecimal);
     }
     if(!beta)
     {
         this->beta = toDegrees(
             acos( (a*a+c*c-b*b)/(2*a*c) )
         );
-        kRound(&beta, kAnglesDecimal);
     }
     if(!gamma)
     {
         this->gamma = toDegrees(
             acos( (a*a+b*b-c*c)/(2*a*b) )
         );
-        kRound(&gamma, kAnglesDecimal);
     }
 }
 
@@ -109,23 +114,17 @@ bool Triangle::calculateMissingFront()
 {
     if(a && b && !c && gamma)
     {
-        qDebug("c");
         c = sqrt( a*a+b*b-2*a*b * cos(toRadians(gamma)) );
-        kRound(&c);
         return true;
     }
     else if(a && c && !b && beta)
     {
-        qDebug("b");
         b = sqrt( a*a+c*c-2*a*c * cos(toRadians(beta)) );
-        kRound(&b);
         return true;
     }
     else if(b && c && !a && alpha)
     {
-        qDebug("a");
         a = sqrt(b*b+c*c-2*b*c * cos(toRadians(alpha)));
-        kRound(&a);
         return true;
     }
     return false;
@@ -194,37 +193,6 @@ void Triangle::fillRectangularTriangle()
 {
     if(validAvailableAngles(anglesAsMap()))
     {
-        // find a hypotenuse by the Pythagorean theorem
-        if(alpha == 90 && b && c)
-        {
-            a = kRound(sqrt(b*b+c*c));
-        }
-        else if(beta == 90 && a && c)
-        {
-            b = kRound(sqrt(a*a+c*c));
-        }
-        else if(gamma == 90 && a && b)
-        {
-            c = kRound(sqrt(a*a+b*b));
-        }
-
-        // find a cathet by the Pythagorean theorem
-        if(alpha == 90 && a)
-        {
-            if(b) c = kRound(sqrt(a*a-b*b));
-            else if (c) b = kRound(sqrt(a*a-c*c));
-        }
-        else if(beta == 90 && b)
-        {
-            if(a) c = kRound(sqrt(b*b-a*a));
-            else if(c) a = kRound(sqrt(b*b-c*c));
-        }
-        else if(gamma == 90 && c)
-        {
-            if(b) a = kRound(sqrt(c*c-b*b));
-            else if(a) b = kRound(sqrt(c*c-a*a));
-        }
-
         // a cathet opposite of a 30 degrees angle equals half past of a hypotenuse
         if(alpha == 90 && a)
         {
@@ -241,18 +209,49 @@ void Triangle::fillRectangularTriangle()
             if(alpha == 30) a = b/2;
             if(gamma == 30) c = b/2;
         }
+
+        // find a hypotenuse by the Pythagorean theorem
+        if(alpha == 90 && b && c)
+        {
+            a = kRound(sqrt(b*b+c*c), fronts_precision);
+        }
+        else if(beta == 90 && a && c)
+        {
+            b = kRound(sqrt(a*a+c*c), fronts_precision);
+        }
+        else if(gamma == 90 && a && b)
+        {
+            c = kRound(sqrt(a*a+b*b), fronts_precision);
+        }
+
+        // find a cathet by the Pythagorean theorem
+        if(alpha == 90 && a)
+        {
+            if(b) c = kRound(sqrt(a*a-b*b), fronts_precision);
+            else if (c) b = kRound(sqrt(a*a-c*c), fronts_precision);
+        }
+        else if(beta == 90 && b)
+        {
+            if(a) c = kRound(sqrt(b*b-a*a), fronts_precision);
+            else if(c) a = kRound(sqrt(b*b-c*c), fronts_precision);
+        }
+        else if(gamma == 90 && c)
+        {
+            if(b) a = kRound(sqrt(c*c-b*b), fronts_precision);
+            else if(a) b = kRound(sqrt(c*c-a*a), fronts_precision);
+        }
     }
 }
 
 
 bool Triangle::validAvailableAngles(QMap<int, double> angles)
 {
-    int sum = 0;
+    double sum = 0;
     for(auto angle : angles.values())
     {
         sum += angle;
     }
-    if(sum == 180 && angles.size() == 3) return true;
+    if(round(sum) == 180.f && angles.size() == 3) return true;
     else if(sum < 180 && angles.size() < 3) return true;
     else {
         return false;

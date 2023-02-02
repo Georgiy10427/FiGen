@@ -17,6 +17,7 @@ private slots:
     void test_angles_validation();
     void test_3fronts_calculating();
     void test_angles_filling();
+    void test_2fronts_triangle();
 };
 
 test_triangle::test_triangle()
@@ -86,6 +87,25 @@ void test_triangle::test_angles_filling()
     // test with a wrong angle
     QCOMPARE(Triangle({{0, 37}, {1, 40}, {2, 54}}, {{0, 48}}).anglesAsMap().values(),
              QList<double>({48}));
+}
+
+void test_triangle::test_2fronts_triangle()
+{
+    // fronts: 89, (73), 85
+    // angles: 68, 50, 62
+    QCOMPARE(Triangle({{0, 89}, {2, 85}}, {{0, 68.07}, {1, 49.55}, {2, 62.38}}, 2).frontsAsMap().values(),
+             QList<double>({89, 73.01, 85}));
+    // fronts: (3), 4, 5
+    // angles: 37, 53, 90
+    QCOMPARE(Triangle({{1, 4}, {2, 5}}, {{0, 37}, {1, 53}, {2, 90}}).frontsAsMap().values(),
+             QList<double>({3, 4, 5}));
+    // fronts: 8, 9, (10)
+    // angles: 49, 59, 72
+    QCOMPARE(Triangle({{0, 8}, {1, 9}}, {{0, 49}, {1, 59}, {2, 72}}, 2).frontsAsMap().values(),
+            QList<double>({8, 9, 10.03}));
+    // fronts: 73, 80, 82
+    QCOMPARE(Triangle({{1, 80}, {2, 82}}, {{0, 53.6}, {1, 61.8}, {2, 64.6}}, 2).frontsAsMap().values(),
+             QList<double>({73.06, 80, 82}));
 }
 
 QTEST_APPLESS_MAIN(test_triangle)
