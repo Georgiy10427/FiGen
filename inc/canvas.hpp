@@ -27,7 +27,7 @@ private:
     Triangle triangle;
 
     static constexpr int captionMarginBottom = 45;
-    static constexpr float scale = 0.45;
+    static constexpr double scale = 0.45;
 };
 
 #endif // CANVAS_HPP

@@ -26,7 +26,7 @@ set(PROJECT_SOURCES
 )
 
 if(MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W3)
 else ()
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()

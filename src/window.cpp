@@ -56,7 +56,7 @@ Window::Window(QWidget *parent)
 void Window::setupIcon()
 {
     this->setWindowIcon(QIcon("://icon64"));
-    this->setWindowTitle("Figen");
+    this->setWindowTitle("FiGen");
 }
 
 Window::~Window()
