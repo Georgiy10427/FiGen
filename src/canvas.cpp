@@ -60,9 +60,9 @@ void Canvas::drawTriangle()
     painter.setFont(QFont("Droid Sans", 14, 600, false));
     painter.setPen(pen);
 
-    double scaleFactor = std::min(this->size().width(), this->size().height())*scale;
-    double maxFrontWidth = std::max(triangle.a, std::max(triangle.b, triangle.c));
-    scaleFactor /= maxFrontWidth;
+    double maxLineWidth = std::min(this->size().width(), this->size().height())*scale;
+    double maxSideWidth = std::max(triangle.a, std::max(triangle.b, triangle.c));
+    double scaleFactor = maxLineWidth/maxSideWidth;
     double triangleHeight;
     double y_center = size().height()/2;
     double aFrontMargin = (size().width() - triangle.a*scaleFactor)/2;
@@ -87,13 +87,21 @@ void Canvas::drawTriangle()
     QRect titlePosition = rect();
     titlePosition.setY(captionYPosition);
     painter.drawText(titlePosition, Qt::AlignHCenter, "Треугольник");
+
+    QString squarePropertyCaption;
+    if(triangle.square > 0)
+    {
+        squarePropertyCaption = QString("S = %1").arg(triangle.square);
+    } else {
+        squarePropertyCaption = "Некорректный треугольник.";
+    }
     painter.drawText(
                 QRectF(titlePosition.x(),
                        firstPoint.y() + 15,
                        titlePosition.width(),
                        titlePosition.height()),
                 Qt::AlignHCenter,
-                QString("S = %1").arg(triangle.square)
+                squarePropertyCaption
     );
 }
 

@@ -18,6 +18,8 @@ private slots:
     void test_3fronts_calculating();
     void test_angles_filling();
     void test_2fronts_triangle();
+    void test_rectangular_triangles();
+    void test_equileterial_triangles();
 };
 
 test_triangle::test_triangle()
@@ -36,6 +38,7 @@ void test_triangle::test_fronts_validation()
     QVERIFY(not Triangle().validFronts({{0, 30}, {1, 60}, {2, 30}}));
     QVERIFY(not Triangle().validFronts({{0, 50}, {1, 50}, {2, 100}}));
     QVERIFY(Triangle().validFronts({{0, 12}, {1, 14}, {2, 13}}));
+    QVERIFY(not Triangle().validFronts({{0, 20}, {1, 20}, {2, 40}}));
 }
 
 void test_triangle::test_angles_validation()
@@ -92,7 +95,7 @@ void test_triangle::test_angles_filling()
 void test_triangle::test_2fronts_triangle()
 {
     // fronts: 89, (73), 85
-    // angles: 68, 50, 62
+    // angles: 68.07, 49.55, 62.38
     QCOMPARE(Triangle({{0, 89}, {2, 85}}, {{0, 68.07}, {1, 49.55}, {2, 62.38}}, 2).frontsAsMap().values(),
              QList<double>({89, 73.01, 85}));
     // fronts: (3), 4, 5
@@ -103,9 +106,65 @@ void test_triangle::test_2fronts_triangle()
     // angles: 49, 59, 72
     QCOMPARE(Triangle({{0, 8}, {1, 9}}, {{0, 49}, {1, 59}, {2, 72}}, 2).frontsAsMap().values(),
             QList<double>({8, 9, 10.03}));
-    // fronts: 73, 80, 82
+    // fronts: (73), 80, 82
+    // angles: 53.6, 61.8, 64.6
     QCOMPARE(Triangle({{1, 80}, {2, 82}}, {{0, 53.6}, {1, 61.8}, {2, 64.6}}, 2).frontsAsMap().values(),
              QList<double>({73.06, 80, 82}));
+
+    // fronts: 93, 67, (89)
+    // angles: 72, (43), 65
+    QCOMPARE(Triangle({{0, 93}, {1, 67}}, {{0, 72}, {2, 65}}).frontsAsMap().values(),
+             QList<double>({93, 67, 89}));
+    QCOMPARE(Triangle({{0, 93}, {1, 67}}, {{0, 72}, {2, 65}}).anglesAsMap().values(),
+             QList<double>({72, 43, 65}));
+
+    // fronts: 435, 500, 378
+    // angles: 57, (76), 47
+    QCOMPARE(Triangle({{1, 500}, {2, 378}}, {{0, 57}, {2, 47}}).frontsAsMap().values(),
+             QList<double>({432, 500, 378}));
+    QCOMPARE(Triangle({{1, 500}, {2, 378}}, {{0, 57}, {2, 47}}).anglesAsMap().values(),
+             QList<double>({57, 76, 47}));
+
+    // fronts: 19, (15), 13
+    // angles: 85, 52, 43
+    QCOMPARE(Triangle({{0, 19}, {2, 13}}, {{1, 52}, {2, 43}}).frontsAsMap().values(),
+             QList<double>({19, 15, 13}));
+    QCOMPARE(Triangle({{0, 19}, {2, 13}}, {{1, 52}, {2, 43}}).anglesAsMap().values(),
+             QList<double>({85, 52, 43}));
+
+    // fronts: 4, 5, (7)
+    // angles: (34), (44), 102
+    QCOMPARE(Triangle({{0, 4}, {1, 5}}, {{2, 102}}).frontsAsMap().values(),
+             QList<double>({4, 5, 7}));
+    QCOMPARE(Triangle({{0, 4}, {1, 5}}, {{2, 102}}).anglesAsMap().values(),
+             QList<double>({34, 44, 102}));
+}
+
+void test_triangle::test_rectangular_triangles()
+{
+    // fronts: 10, (5), (9)
+    // angles: 90, 30, (60)
+    QCOMPARE(Triangle({{0, 10}}, {{0, 90}, {1, 30}}).frontsAsMap().values(),
+             QList<double>({10, 5, 9}));
+    QCOMPARE(Triangle({{0, 10}}, {{0, 90}, {1, 30}}).anglesAsMap().values(),
+             QList<double>({90, 30, 60}));
+}
+
+void test_triangle::test_equileterial_triangles()
+{
+    // fronts: 10, (10), (10)
+    // angles: 60, 60, (60)
+    QCOMPARE(Triangle({{0, 10}}, {{0, 60}, {1, 60}}).frontsAsMap().values(),
+             QList<double>({10, 10, 10}));
+    QCOMPARE(Triangle({{0, 10}}, {{0, 60}, {1, 60}}).anglesAsMap().values(),
+             QList<double>({60, 60, 60}));
+
+    // fronts: 9, (5), (9)
+    // angles: 74, 32, 74
+    QCOMPARE(Triangle({{0, 9}}, {{0, 74}, {1, 32}, {2, 74}}).frontsAsMap().values(),
+             QList<double>({9, 5, 9}));
+    QCOMPARE(Triangle({{0, 9}}, {{0, 74}, {1, 32}, {2, 74}}).anglesAsMap().values(),
+             QList<double>({74, 32, 74}));
 }
 
 QTEST_APPLESS_MAIN(test_triangle)

@@ -27,6 +27,12 @@ public:
     bool isIsoscelesByFronts();
     bool isIsoscelesByAngles();
 
+    int getFrontsQuantity();
+    int getAnglesQuantity();
+    bool isValidAngles();
+    bool isValidFronts();
+
+
     QMap<int, double> anglesAsMap();
     QMap<int, double> frontsAsMap();
 
