@@ -28,7 +28,7 @@ set(PROJECT_SOURCES
 if(MSVC)
     add_compile_options(/W3)
 else ()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

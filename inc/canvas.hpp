@@ -20,6 +20,7 @@ private:
     void drawEmpty();
     void paintEvent(QPaintEvent *);
     QPoint rotatePoint(QPoint origin, double angle, QPoint point);
+    QPolygon getTriangleGeometry(QSize canvasSize, Triangle triangle, double scale=0.45);
     QRectF posAtCenter(QRectF rect);
 
     enum FType {FTriangle, FQuadrilateral, noData};
@@ -27,7 +28,6 @@ private:
     Triangle triangle;
 
     static constexpr int captionMarginBottom = 45;
-    static constexpr double scale = 0.45;
 };
 
 #endif // CANVAS_HPP

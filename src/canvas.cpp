@@ -52,38 +52,46 @@ QPoint Canvas::rotatePoint(QPoint origin, double angle, QPoint point)
     return point;
 }
 
+QPolygon Canvas::getTriangleGeometry(QSize canvasSize, Triangle triangle, double scale)
+{
+    using std::min, std::max;
+    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin, marginBottom;
+    QPoint firstPoint, secondPoint, thirdPoint, forthPoint;
+
+    // calculate scaleFactor and margins
+    maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
+    maxSideLength = max(triangle.a, max(triangle.b, triangle.c));
+    scaleFactor = maxLineLength/maxSideLength;
+    aFrontMargin = (canvasSize.width() - triangle.a*scaleFactor)/2;
+    marginBottom = canvasSize.height()*0.65; // get 66 percents as the margin bottom
+
+    // place 3 points
+    firstPoint = QPoint(aFrontMargin, marginBottom);
+    secondPoint = QPoint(aFrontMargin + triangle.a*scaleFactor, marginBottom);
+    thirdPoint = QPoint(secondPoint.x() - triangle.b*scaleFactor, marginBottom);
+    forthPoint = QPoint(aFrontMargin + triangle.c*scaleFactor, marginBottom);
+
+    // rotate B side
+    thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
+    forthPoint = rotatePoint(firstPoint, -triangle.beta, forthPoint);
+
+    return QPolygon({firstPoint, secondPoint, thirdPoint, forthPoint});
+}
+
 void Canvas::drawTriangle()
 {
     QPainter painter(this);
     QPen pen = QPen(QPalette().color(QPalette::Highlight), 3);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setFont(QFont("Droid Sans", 14, 600, false));
+    painter.setFont(QFont("Droid Sans", 14, 400, false));
     painter.setPen(pen);
 
-    double maxLineWidth = std::min(this->size().width(), this->size().height())*scale;
-    double maxSideWidth = std::max(triangle.a, std::max(triangle.b, triangle.c));
-    double scaleFactor = maxLineWidth/maxSideWidth;
-    double triangleHeight;
-    double y_center = size().height()/2;
-    double aFrontMargin = (size().width() - triangle.a*scaleFactor)/2;
-
-    QPoint firstPoint = QPoint(aFrontMargin, y_center);
-    QPoint secondPoint = QPoint(aFrontMargin + triangle.a*scaleFactor, y_center);
-    QPoint thirdPoint = QPoint(secondPoint.x() - triangle.b*scaleFactor, y_center);
-
-    triangleHeight = thirdPoint.y() - firstPoint.y()/2;
-    thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
-
-    // Shift triangle to center by Y
-    firstPoint += QPoint(0, triangleHeight/2);
-    secondPoint += QPoint(0, triangleHeight/2);
-    thirdPoint += QPoint(0, triangleHeight/2);
-
-    painter.drawPolygon(QPolygon({firstPoint, secondPoint, thirdPoint}));
+    QPolygon trianglePoints = getTriangleGeometry(size(), triangle);
+    painter.drawPolygon(trianglePoints);
 
     pen.setColor(QPalette().color(QPalette::WindowText));
     painter.setPen(pen);
-    int captionYPosition = thirdPoint.y()/2;
+    int captionYPosition = trianglePoints[2].y()/2;
     QRect titlePosition = rect();
     titlePosition.setY(captionYPosition);
     painter.drawText(titlePosition, Qt::AlignHCenter, "Треугольник");
@@ -97,7 +105,7 @@ void Canvas::drawTriangle()
     }
     painter.drawText(
                 QRectF(titlePosition.x(),
-                       firstPoint.y() + 15,
+                       trianglePoints[0].y() + 15,
                        titlePosition.width(),
                        titlePosition.height()),
                 Qt::AlignHCenter,
