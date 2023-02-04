@@ -148,6 +148,10 @@ void test_triangle::test_rectangular_triangles()
              QList<double>({10, 5, 9}));
     QCOMPARE(Triangle({{0, 10}}, {{0, 90}, {1, 30}}).anglesAsMap().values(),
              QList<double>({90, 30, 60}));
+
+    // fronts: (nan), 18, 7
+    // angles: * * 90
+    QVERIFY(not std::isnan(Triangle({{1, 18}, {2, 7}}, {{2, 90}}).frontsAsMap().values()[0]));
 }
 
 void test_triangle::test_equileterial_triangles()

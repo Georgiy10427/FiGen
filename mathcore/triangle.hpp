@@ -8,8 +8,6 @@
 #include <iostream>
 #include <algorithm>
 
-// To-do: rewrite the square/circles_radius function to more flexible
-// write checks for rectangular triangles
 
 class Triangle : private BaseFigure
 {
@@ -27,8 +25,8 @@ public:
     bool isIsoscelesByFronts();
     bool isIsoscelesByAngles();
 
-    int getFrontsQuantity();
-    int getAnglesQuantity();
+    int frontsQuantity();
+    int anglesQuantity();
     bool isValidAngles();
     bool isValidFronts();
 
