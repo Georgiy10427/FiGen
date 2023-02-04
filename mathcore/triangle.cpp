@@ -19,16 +19,13 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   fillRectangularTriangle();
   fillIsoscalesTriangle();
 
-  fronts = frontsAsMap();
-  angles = anglesAsMap();
-
-  if (fronts.size() == 3 && isValidFronts()) {
-    if (angles.size() == 2 && validAvailableAngles(angles)) {
+  if (frontsQuantity() == 3 && isValidFronts()) {
+    if (anglesQuantity() == 2 && validAvailableAngles(angles)) {
       fillMissingAngle();
     }
     calculateMissingAngles();
-  } else if (fronts.size() == 2 && validAvailableAngles(angles)) {
-    if (angles.size() == 2) {
+  } else if (frontsQuantity() == 2 && validAvailableAngles(angles)) {
+    if (anglesQuantity() == 2) {
       fillMissingAngle();
     }
     if (calculateMissingFront()) {
@@ -279,6 +276,16 @@ bool Triangle::isValidFronts() {
   if (b >= a + c)
     return false;
   return true;
+}
+
+int Triangle::frontsQuantity()
+{
+    return (a > 0) + (b > 0) + (c > 0);
+}
+
+int Triangle::anglesQuantity()
+{
+    return (alpha > 0) + (beta > 0) + (gamma > 0);
 }
 
 QMap<int, double> Triangle::anglesAsMap() {
