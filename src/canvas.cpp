@@ -75,13 +75,13 @@ void Canvas::drawTriangle()
     thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
 
     // Shift triangle to center by Y
-    firstPoint += QPoint(-triangle.a/2, triangleHeight/2);
-    secondPoint += QPoint(-triangle.a/2, triangleHeight/2);
-    thirdPoint += QPoint(-triangle.a/2, triangleHeight/2);
+    firstPoint += QPoint(0, triangleHeight/2);
+    secondPoint += QPoint(0, triangleHeight/2);
+    thirdPoint += QPoint(0, triangleHeight/2);
 
     painter.drawPolygon(QPolygon({firstPoint, secondPoint, thirdPoint}));
 
-    pen.setColor(QPalette().color(QPalette::Text));
+    pen.setColor(QPalette().color(QPalette::WindowText));
     painter.setPen(pen);
     int captionYPosition = thirdPoint.y()/2;
     QRect titlePosition = rect();
