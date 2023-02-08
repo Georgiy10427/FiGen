@@ -42,12 +42,10 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   if (frontsQuantity() == 3 && anglesQuantity() == 3 && not isValidTriangle()) {
     // rollback
     unpackFromMap(fronts, angles);
-    qDebug("1");
   }
   else if ((frontsQuantity() < 3 || anglesQuantity() < 3) && not isValidAngles() && not isValidFronts())
   {
       unpackFromMap(fronts, angles);
-      qDebug("2");
   }
   else {
     // round values
