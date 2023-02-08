@@ -316,6 +316,9 @@ QMap<int, double> Triangle::frontsAsMap() {
 
 bool Triangle::isValidTriangle()
 {
+  using std::max;
+  using std::min;
+
   if(not isValidFronts() or not isValidAngles())
   {
       return false;
@@ -329,33 +332,35 @@ bool Triangle::isValidTriangle()
       return kRound(a, fronts_precision) == kRound(b, fronts_precision)
               && kRound(a, fronts_precision) == kRound(c, fronts_precision);
   } else {
-      auto sides = frontsAsMap().values();
-      auto angles = anglesAsMap().values();
-      std::sort(sides.begin(), sides.end());
-      std::sort(angles.begin(), angles.end());
+      double largestSide = max(a, max(b, c));
+      double leastSide = min(a, min(b, c));
+      double largestAngle = max(alpha, max(beta, gamma));
+      double leastAngle = min(alpha, min(beta, gamma));
 
-      if(sides[0] == a && angles[0] != alpha)
+      // check the least side and angle
+      if(leastSide == a && leastAngle != alpha)
       {
           return false;
       }
-      if(sides[0] == b && angles[0] != beta)
+      if(leastSide == b && leastAngle != beta)
       {
           return false;
       }
-      if(sides[0] == c && angles[0] != gamma)
+      if(leastSide == c && leastAngle != gamma)
       {
           return false;
       }
 
-      if(sides[2] == a && angles[2] != alpha)
+      // check the largest side and angle
+      if(largestSide == a && largestAngle != alpha)
       {
           return false;
       }
-      if(sides[2] == b && angles[2] != beta)
+      if(largestSide == b && largestAngle != beta)
       {
           return false;
       }
-      if(sides[2] == c && angles[2] != gamma)
+      if(largestSide == c && largestAngle != gamma)
       {
           return false;
       }

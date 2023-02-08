@@ -20,6 +20,7 @@ private slots:
     void test_2fronts_triangle();
     void test_rectangular_triangles();
     void test_equileterial_triangles();
+    void test_calc_square();
 };
 
 test_triangle::test_triangle()
@@ -42,6 +43,7 @@ void test_triangle::test_fronts_validation()
     QVERIFY(Triangle({{{0, 10}, {1, 10}, {2, 10}}}, {}).isValidTriangle());
     QVERIFY(not Triangle({{{0, 10.1}, {1, 10}, {2, 10}}}, {{0, 60}, {1, 60}, {2, 60}}, 1).isValidTriangle());
     QVERIFY(not Triangle({{{0, 10.5}, {1, 10}, {2, 10}}}, {{0, 60}, {1, 60}, {2, 60}}).isValidTriangle());
+    QVERIFY(not Triangle({{{0, 10}, {1, 10}, {2, 10}}}, {{0, 59.5}, {1, 60.5}, {2, 60}}).isValidTriangle());
 }
 
 void test_triangle::test_angles_validation()
@@ -172,6 +174,16 @@ void test_triangle::test_equileterial_triangles()
              QList<double>({9, 5, 9}));
     QCOMPARE(Triangle({{0, 9}}, {{0, 74}, {1, 32}, {2, 74}}).anglesAsMap().values(),
              QList<double>({74, 32, 74}));
+}
+
+void test_triangle::test_calc_square()
+{
+    // fronts: 3, 4, 5
+    // square: 6
+    QCOMPARE(Triangle({{0, 3}, {1, 4}, {2, 5}}, {}).square, 6);
+    // fronts: 23, 17, 15
+    // square: ~127
+    QCOMPARE(Triangle({{0, 23}, {1, 17}, {2, 15}}, {}).square, 127);
 }
 
 QTEST_APPLESS_MAIN(test_triangle)
