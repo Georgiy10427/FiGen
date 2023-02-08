@@ -39,15 +39,10 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   calculateInscribedCircleRadius();
   calculateCircumscribedCircleRadius();
 
-  if (frontsQuantity() == 3 && anglesQuantity() == 3 && not isValidTriangle()) {
+  if (not isValidTriangle()) {
     // rollback
     unpackFromMap(fronts, angles);
-  }
-  else if ((frontsQuantity() < 3 || anglesQuantity() < 3) && not isValidAngles() && not isValidFronts())
-  {
-      unpackFromMap(fronts, angles);
-  }
-  else {
+  } else {
     // round values
     kRound(&alpha, angles_precision);
     kRound(&beta, angles_precision);
