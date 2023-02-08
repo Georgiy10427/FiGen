@@ -16,10 +16,9 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
     fillMissingAngle();
   }
 
-  if(frontsQuantity() < 3)
-  {
-      fillRectangularTriangle();
-      fillIsoscalesTriangle();
+  if (frontsQuantity() < 3) {
+    fillRectangularTriangle();
+    fillIsoscalesTriangle();
   }
 
   if (frontsQuantity() == 3 && isValidFronts() && anglesQuantity() < 3) {
@@ -59,22 +58,16 @@ void Triangle::unpackFromMap(QMap<int, double> fronts,
   alpha = 0;
   beta = 0;
   gamma = 0;
-  if (angles.contains(0))
-    this->alpha = angles[0];
-  if (angles.contains(1))
-    this->beta = angles[1];
-  if (angles.contains(2))
-    this->gamma = angles[2];
+  if (angles.contains(0)) this->alpha = angles[0];
+  if (angles.contains(1)) this->beta = angles[1];
+  if (angles.contains(2)) this->gamma = angles[2];
 
   a = 0;
   b = 0;
   c = 0;
-  if (fronts.contains(0))
-    this->a = fronts[0];
-  if (fronts.contains(1))
-    this->b = fronts[1];
-  if (fronts.contains(2))
-    this->c = fronts[2];
+  if (fronts.contains(0)) this->a = fronts[0];
+  if (fronts.contains(1)) this->b = fronts[1];
+  if (fronts.contains(2)) this->c = fronts[2];
 }
 
 void Triangle::calculateMissingAngles() {
@@ -148,7 +141,7 @@ void Triangle::calculateSquare() {
 }
 
 void Triangle::calculateCircumscribedCircleRadius() {
-    // refactor
+  // refactor
   if (a > 0 && b > 0 && c > 0 && square > 0) {
     circumscribedCircleRadius = (a * b * c) / (4 * square);
   }
@@ -162,29 +155,21 @@ void Triangle::calculateInscribedCircleRadius() {
 
 void Triangle::fillIsoscalesTriangle() {
   using std::max;
-  if (a and b and c and not isValidFronts())
-    return;
+  if (a and b and c and not isValidFronts()) return;
 
   // fill a missing angle
-  if (a == b && a && max(alpha, beta) != 90)
-    alpha = beta = max(alpha, beta);
-  if (a == c && a && max(alpha, gamma) != 90)
-    alpha = gamma = max(alpha, gamma);
-  if (b == c && b && max(beta, gamma) != 90)
-    beta = gamma = max(beta, gamma);
+  if (a == b && a && max(alpha, beta) != 90) alpha = beta = max(alpha, beta);
+  if (a == c && a && max(alpha, gamma) != 90) alpha = gamma = max(alpha, gamma);
+  if (b == c && b && max(beta, gamma) != 90) beta = gamma = max(beta, gamma);
 
   // fill a missing front
-  if (alpha == beta && alpha)
-    a = b = max(a, b);
-  if (alpha == gamma && alpha)
-    a = c = max(a, c);
-  if (beta == gamma && beta)
-    b = c = max(b, c);
+  if (alpha == beta && alpha) a = b = max(a, b);
+  if (alpha == gamma && alpha) a = c = max(a, c);
+  if (beta == gamma && beta) b = c = max(b, c);
 }
 
 void Triangle::fillRectangularTriangle() {
-  if (not validAvailableAngles(anglesAsMap()))
-    return;
+  if (not validAvailableAngles(anglesAsMap())) return;
 
   // a cathet opposite of 30 degrees angle equals half past of a hypotenuse
   if (alpha == 90 && a) {
@@ -198,10 +183,8 @@ void Triangle::fillRectangularTriangle() {
     else if (alpha == 30 && !a)
       a = c / 2;
   } else if (beta == 90 && b) {
-    if (alpha == 30 && !a)
-      a = b / 2;
-    if (gamma == 30 && !c)
-      c = b / 2;
+    if (alpha == 30 && !a) a = b / 2;
+    if (gamma == 30 && !c) c = b / 2;
   }
 
   // find a hypotenuse by the Pythagorean theorem
@@ -215,19 +198,19 @@ void Triangle::fillRectangularTriangle() {
 
   // find a cathet by the Pythagorean theorem
   if (alpha == 90 && a) {
-    if (b && !c && a*a-b*b > 0)
+    if (b && !c && a * a - b * b > 0)
       c = kRound(sqrt(a * a - b * b), fronts_precision);
-    else if (c && !b && a*a-c*c > 0)
+    else if (c && !b && a * a - c * c > 0)
       b = kRound(sqrt(a * a - c * c), fronts_precision);
   } else if (beta == 90 && b) {
-    if (a && c && b*b-a*a > 0)
+    if (a && c && b * b - a * a > 0)
       c = kRound(sqrt(b * b - a * a), fronts_precision);
-    else if (c && a && b*b-c*c > 0)
+    else if (c && a && b * b - c * c > 0)
       a = kRound(sqrt(b * b - c * c), fronts_precision);
   } else if (gamma == 90 && c) {
-    if (b && !a && c*c-b*b > 0)
+    if (b && !a && c * c - b * b > 0)
       a = kRound(sqrt(c * c - b * b), fronts_precision);
-    else if (a && !b && c*c-a*a > 0)
+    else if (a && !b && c * c - a * a > 0)
       b = kRound(sqrt(c * c - a * a), fronts_precision);
   }
 }
@@ -263,107 +246,82 @@ bool Triangle::validFronts(QMap<int, double> fronts) {
   double sideA = fronts[0];
   double sideB = fronts[1];
   double sideC = fronts[2];
-  if (sideA >= sideB + sideC)
-    return false;
-  if (sideC >= sideA + sideB)
-    return false;
-  if (sideB >= sideA + sideC)
-    return false;
+  if (sideA >= sideB + sideC) return false;
+  if (sideC >= sideA + sideB) return false;
+  if (sideB >= sideA + sideC) return false;
   return true;
 }
 
 bool Triangle::isValidFronts() {
-  if (a >= b + c)
-    return false;
-  if (c >= a + b)
-    return false;
-  if (b >= a + c)
-    return false;
+  if (a >= b + c) return false;
+  if (c >= a + b) return false;
+  if (b >= a + c) return false;
   return true;
 }
 
-int Triangle::frontsQuantity()
-{
-    return (a > 0) + (b > 0) + (c > 0);
-}
+int Triangle::frontsQuantity() { return (a > 0) + (b > 0) + (c > 0); }
 
-int Triangle::anglesQuantity()
-{
-    return (alpha > 0) + (beta > 0) + (gamma > 0);
+int Triangle::anglesQuantity() {
+  return (alpha > 0) + (beta > 0) + (gamma > 0);
 }
 
 QMap<int, double> Triangle::anglesAsMap() {
   QMap<int, double> angles;
-  if (alpha)
-    angles.insert(0, alpha);
-  if (beta)
-    angles.insert(1, beta);
-  if (gamma)
-    angles.insert(2, gamma);
+  if (alpha) angles.insert(0, alpha);
+  if (beta) angles.insert(1, beta);
+  if (gamma) angles.insert(2, gamma);
   return angles;
 }
 
 QMap<int, double> Triangle::frontsAsMap() {
   QMap<int, double> fronts;
-  if (a)
-    fronts.insert(0, a);
-  if (b)
-    fronts.insert(1, b);
-  if (c)
-    fronts.insert(2, c);
+  if (a) fronts.insert(0, a);
+  if (b) fronts.insert(1, b);
+  if (c) fronts.insert(2, c);
   return fronts;
 }
 
-bool Triangle::isValidTriangle()
-{
+bool Triangle::isValidTriangle() {
   using std::max;
   using std::min;
 
-  if(not isValidFronts() or not isValidAngles())
-  {
-      return false;
+  if (not isValidFronts() or not isValidAngles()) {
+    return false;
   }
 
-  if(a == b && a == c)
-  {
-      return alpha == beta && alpha == gamma && round(alpha) == 60;
+  if (a == b && a == c) {
+    return alpha == beta && alpha == gamma && round(alpha) == 60;
   }
-  if(alpha == beta && alpha == gamma && alpha == 60) {
-      return kRound(a, fronts_precision) == kRound(b, fronts_precision)
-              && kRound(a, fronts_precision) == kRound(c, fronts_precision);
+  if (alpha == beta && alpha == gamma && alpha == 60) {
+    return kRound(a, fronts_precision) == kRound(b, fronts_precision) &&
+           kRound(a, fronts_precision) == kRound(c, fronts_precision);
   } else {
-      double largestSide = max(a, max(b, c));
-      double leastSide = min(a, min(b, c));
-      double largestAngle = max(alpha, max(beta, gamma));
-      double leastAngle = min(alpha, min(beta, gamma));
+    double largestSide = max(a, max(b, c));
+    double leastSide = min(a, min(b, c));
+    double largestAngle = max(alpha, max(beta, gamma));
+    double leastAngle = min(alpha, min(beta, gamma));
 
-      // check the least side and angle
-      if(leastSide == a && leastAngle != alpha)
-      {
-          return false;
-      }
-      if(leastSide == b && leastAngle != beta)
-      {
-          return false;
-      }
-      if(leastSide == c && leastAngle != gamma)
-      {
-          return false;
-      }
+    // check the least side and angle
+    if (leastSide == a && leastAngle != alpha) {
+      return false;
+    }
+    if (leastSide == b && leastAngle != beta) {
+      return false;
+    }
+    if (leastSide == c && leastAngle != gamma) {
+      return false;
+    }
 
-      // check the largest side and angle
-      if(largestSide == a && largestAngle != alpha)
-      {
-          return false;
-      }
-      if(largestSide == b && largestAngle != beta)
-      {
-          return false;
-      }
-      if(largestSide == c && largestAngle != gamma)
-      {
-          return false;
-      }
-      return true;
+    // check the largest side and angle
+    if (largestSide == a && largestAngle != alpha) {
+      return false;
+    }
+    if (largestSide == b && largestAngle != beta) {
+      return false;
+    }
+    if (largestSide == c && largestAngle != gamma) {
+      return false;
+    }
+    return true;
   }
 }
