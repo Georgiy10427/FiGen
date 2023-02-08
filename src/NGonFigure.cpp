@@ -178,7 +178,7 @@ void NGonFigure::drawNgonSuggestion()
     if(angles.size() <= 3 && fronts.size() <= 3)
     {
         Triangle triangle(fronts, angles);
-        if(triangle.anglesAsMap().size() == 3 && triangle.frontsAsMap().size() == 3)
+        if(triangle.isValidTriangle())
         {
             canvas->setCurrentFigure(triangle);
             canvas->update();

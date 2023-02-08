@@ -17,6 +17,7 @@ public:
              int fronts_precision=0, int angles_precision=0);
 
     /* validators */
+    bool isValidTriangle();
     bool validAvailableAngles(QMap<int, double> angles);
     bool validFronts(QMap<int, double> fronts);
 

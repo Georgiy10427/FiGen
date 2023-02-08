@@ -16,10 +16,13 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
     fillMissingAngle();
   }
 
-  fillRectangularTriangle();
-  fillIsoscalesTriangle();
+  if(frontsQuantity() < 3)
+  {
+      fillRectangularTriangle();
+      fillIsoscalesTriangle();
+  }
 
-  if (frontsQuantity() == 3 && isValidFronts()) {
+  if (frontsQuantity() == 3 && isValidFronts() && anglesQuantity() < 3) {
     if (anglesQuantity() == 2 && validAvailableAngles(angles)) {
       fillMissingAngle();
     }
@@ -37,7 +40,7 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   calculateInscribedCircleRadius();
   calculateCircumscribedCircleRadius();
 
-  if (!validAvailableAngles(anglesAsMap()) || !validFronts(frontsAsMap())) {
+  if (not isValidTriangle()) {
     // rollback
     unpackFromMap(fronts, angles);
   } else {
@@ -145,6 +148,7 @@ void Triangle::calculateSquare() {
 }
 
 void Triangle::calculateCircumscribedCircleRadius() {
+    // refactor
   if (a > 0 && b > 0 && c > 0 && square > 0) {
     circumscribedCircleRadius = (a * b * c) / (4 * square);
   }
@@ -308,4 +312,53 @@ QMap<int, double> Triangle::frontsAsMap() {
   if (c)
     fronts.insert(2, c);
   return fronts;
+}
+
+bool Triangle::isValidTriangle()
+{
+  if(not isValidFronts() or not isValidAngles())
+  {
+      return false;
+  }
+
+  if(a == b && a == c)
+  {
+      return alpha == beta && alpha == gamma && round(alpha) == 60;
+  }
+  if(alpha == beta && alpha == gamma && alpha == 60) {
+      return kRound(a, fronts_precision) == kRound(b, fronts_precision)
+              && kRound(a, fronts_precision) == kRound(c, fronts_precision);
+  } else {
+      auto sides = frontsAsMap().values();
+      auto angles = anglesAsMap().values();
+      std::sort(sides.begin(), sides.end());
+      std::sort(angles.begin(), angles.end());
+
+      if(sides[0] == a && angles[0] != alpha)
+      {
+          return false;
+      }
+      if(sides[0] == b && angles[0] != beta)
+      {
+          return false;
+      }
+      if(sides[0] == c && angles[0] != gamma)
+      {
+          return false;
+      }
+
+      if(sides[2] == a && angles[2] != alpha)
+      {
+          return false;
+      }
+      if(sides[2] == b && angles[2] != beta)
+      {
+          return false;
+      }
+      if(sides[2] == c && angles[2] != gamma)
+      {
+          return false;
+      }
+      return true;
+  }
 }

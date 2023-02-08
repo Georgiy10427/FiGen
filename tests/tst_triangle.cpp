@@ -39,6 +39,9 @@ void test_triangle::test_fronts_validation()
     QVERIFY(not Triangle().validFronts({{0, 50}, {1, 50}, {2, 100}}));
     QVERIFY(Triangle().validFronts({{0, 12}, {1, 14}, {2, 13}}));
     QVERIFY(not Triangle().validFronts({{0, 20}, {1, 20}, {2, 40}}));
+    QVERIFY(Triangle({{{0, 10}, {1, 10}, {2, 10}}}, {}).isValidTriangle());
+    QVERIFY(not Triangle({{{0, 10.1}, {1, 10}, {2, 10}}}, {{0, 60}, {1, 60}, {2, 60}}, 1).isValidTriangle());
+    QVERIFY(not Triangle({{{0, 10.5}, {1, 10}, {2, 10}}}, {{0, 60}, {1, 60}, {2, 60}}).isValidTriangle());
 }
 
 void test_triangle::test_angles_validation()
@@ -104,8 +107,8 @@ void test_triangle::test_2fronts_triangle()
              QList<double>({3, 4, 5}));
     // fronts: 8, 9, (10)
     // angles: 49, 59, 72
-    QCOMPARE(Triangle({{0, 8}, {1, 9}}, {{0, 49}, {1, 59}, {2, 72}}, 2).frontsAsMap().values(),
-            QList<double>({8, 9, 10.03}));
+    QCOMPARE(Triangle({{0, 80}, {1, 90}}, {{0, 49}, {1, 59}, {2, 72}}).frontsAsMap().values(),
+            QList<double>({80, 90, 100}));
     // fronts: (73), 80, 82
     // angles: 53.6, 61.8, 64.6
     QCOMPARE(Triangle({{1, 80}, {2, 82}}, {{0, 53.6}, {1, 61.8}, {2, 64.6}}, 2).frontsAsMap().values(),
