@@ -39,10 +39,17 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   calculateInscribedCircleRadius();
   calculateCircumscribedCircleRadius();
 
-  if (not isValidTriangle()) {
+  if (frontsQuantity() == 3 && anglesQuantity() == 3 && not isValidTriangle()) {
     // rollback
     unpackFromMap(fronts, angles);
-  } else {
+    qDebug("1");
+  }
+  else if ((frontsQuantity() < 3 || anglesQuantity() < 3) && not isValidAngles() && not isValidFronts())
+  {
+      unpackFromMap(fronts, angles);
+      qDebug("2");
+  }
+  else {
     // round values
     kRound(&alpha, angles_precision);
     kRound(&beta, angles_precision);
@@ -189,29 +196,29 @@ void Triangle::fillRectangularTriangle() {
 
   // find a hypotenuse by the Pythagorean theorem
   if (alpha == 90 && b && c and !a) {
-    a = kRound(sqrt(b * b + c * c), fronts_precision);
+    a = sqrt(b * b + c * c);
   } else if (beta == 90 && a && c and !b) {
-    b = kRound(sqrt(a * a + c * c), fronts_precision);
+    b = sqrt(a * a + c * c);
   } else if (gamma == 90 && a && b and !c) {
-    c = kRound(sqrt(a * a + b * b), fronts_precision);
+    c = sqrt(a * a + b * b);
   }
 
   // find a cathet by the Pythagorean theorem
   if (alpha == 90 && a) {
     if (b && !c && a * a - b * b > 0)
-      c = kRound(sqrt(a * a - b * b), fronts_precision);
+      c = sqrt(a * a - b * b);
     else if (c && !b && a * a - c * c > 0)
-      b = kRound(sqrt(a * a - c * c), fronts_precision);
+      b = sqrt(a * a - c * c);
   } else if (beta == 90 && b) {
     if (a && c && b * b - a * a > 0)
-      c = kRound(sqrt(b * b - a * a), fronts_precision);
+      c = sqrt(b * b - a * a);
     else if (c && a && b * b - c * c > 0)
-      a = kRound(sqrt(b * b - c * c), fronts_precision);
+      a = sqrt(b * b - c * c);
   } else if (gamma == 90 && c) {
     if (b && !a && c * c - b * b > 0)
-      a = kRound(sqrt(c * c - b * b), fronts_precision);
+      a = sqrt(c * c - b * b);
     else if (a && !b && c * c - a * a > 0)
-      b = kRound(sqrt(c * c - a * a), fronts_precision);
+      b = sqrt(c * c - a * a);
   }
 }
 
