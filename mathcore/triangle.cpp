@@ -1,4 +1,4 @@
-#include "triangle.hpp"
+﻿#include "triangle.hpp"
 
 Triangle::Triangle() {}
 
@@ -12,16 +12,31 @@ Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles,
 
 void Triangle::addMissingInformation(QMap<int, double> fronts,
                                      QMap<int, double> angles) {
-  if (isValidFronts()) {
-    fillMissingAngle();
+  qDebug() << "------------------------------";
+  qDebug() << QString("Данные для решения треугольника: (%1, %2, %3), [%4, %5, %6]")
+              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
+
+  if(frontsQuantity() == 3 and anglesQuantity() == 3)
+  {
+      calculateSquare();
+      calculateInscribedCircleRadius();
+      calculateCircumscribedCircleRadius();
+      return;
   }
 
-  if (frontsQuantity() < 3) {
-    fillRectangularTriangle();
-    fillIsoscalesTriangle();
+  if(isValidAngles())
+  {
+      fillMissingAngle();
   }
 
-  if (frontsQuantity() == 3 && isValidFronts() && anglesQuantity() < 3) {
+  fillRectangularTriangle();
+  qDebug() << QString("Дополнения от анализа на прямоугольный треугольник: (%1, %2, %3), [%4, %5, %6]")
+              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
+  fillIsoscalesTriangle();
+  qDebug() << QString("Дополнения от анализа на равносторонний треугольник: (%1, %2, %3), [%4, %5, %6]")
+              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
+
+  if (frontsQuantity() == 3 && isValidFronts()) {
     if (anglesQuantity() == 2 && validAvailableAngles(angles)) {
       fillMissingAngle();
     }
@@ -39,18 +54,36 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   calculateInscribedCircleRadius();
   calculateCircumscribedCircleRadius();
 
+  qDebug() << QString("Площадь: %1").arg(square);
+  qDebug() << QString("До округления: (%1, %2, %3), [%4, %5, %6]")
+              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
   if (not isValidTriangle()) {
-    // rollback
     unpackFromMap(fronts, angles);
+    qDebug() << QString("Откат: (%1, %2, %3), [%4, %5, %6]")
+                .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
   } else {
     // round values
+    auto pointFronts = frontsAsMap();
+    auto pointAngles = anglesAsMap();
+
     kRound(&alpha, angles_precision);
     kRound(&beta, angles_precision);
     gamma = 180 - (alpha + beta);
     kRound(&a, fronts_precision);
     kRound(&b, fronts_precision);
     kRound(&c, fronts_precision);
+
+    qDebug() << QString("После округления: (%1, %2, %3), [%4, %5, %6]")
+                .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
+
+    if(not isValidTriangle())
+    {
+        unpackFromMap(pointFronts, pointAngles);
+        qDebug("Откат...");
+    }
   }
+  qDebug() << QString("Расчет окончен: (%1, %2, %3), [%4, %5, %6]")
+              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
 }
 
 void Triangle::unpackFromMap(QMap<int, double> fronts,
@@ -158,14 +191,32 @@ void Triangle::fillIsoscalesTriangle() {
   if (a and b and c and not isValidFronts()) return;
 
   // fill a missing angle
-  if (a == b && a && max(alpha, beta) != 90) alpha = beta = max(alpha, beta);
-  if (a == c && a && max(alpha, gamma) != 90) alpha = gamma = max(alpha, gamma);
-  if (b == c && b && max(beta, gamma) != 90) beta = gamma = max(beta, gamma);
+  if (a == b && a && max(alpha, beta) != 90) {
+      if(alpha && beta) return;
+      alpha = beta = max(alpha, beta);
+  }
+  if (a == c && a && max(alpha, gamma) != 90) {
+      if(alpha && gamma) return;
+      alpha = gamma = max(alpha, gamma);
+  }
+  if (b == c && b && max(beta, gamma) != 90) {
+      if(beta && gamma) return;
+      beta = gamma = max(beta, gamma);
+  }
 
   // fill a missing front
-  if (alpha == beta && alpha) a = b = max(a, b);
-  if (alpha == gamma && alpha) a = c = max(a, c);
-  if (beta == gamma && beta) b = c = max(b, c);
+  if (alpha == beta && alpha) {
+      if(a && b) return;
+      a = b = max(a, b);
+  }
+  if (alpha == gamma && alpha) {
+      if(a && c) return;
+      a = c = max(a, c);
+  }
+  if (beta == gamma && beta) {
+      if(b && c) return;
+      b = c = max(b, c);
+  }
 }
 
 void Triangle::fillRectangularTriangle() {
@@ -267,17 +318,17 @@ int Triangle::anglesQuantity() {
 
 QMap<int, double> Triangle::anglesAsMap() {
   QMap<int, double> angles;
-  if (alpha) angles.insert(0, alpha);
-  if (beta) angles.insert(1, beta);
-  if (gamma) angles.insert(2, gamma);
+  if (alpha > 0) angles.insert(0, alpha);
+  if (beta > 0) angles.insert(1, beta);
+  if (gamma > 0) angles.insert(2, gamma);
   return angles;
 }
 
 QMap<int, double> Triangle::frontsAsMap() {
   QMap<int, double> fronts;
-  if (a) fronts.insert(0, a);
-  if (b) fronts.insert(1, b);
-  if (c) fronts.insert(2, c);
+  if (a > 0) fronts.insert(0, a);
+  if (b > 0) fronts.insert(1, b);
+  if (c > 0) fronts.insert(2, c);
   return fronts;
 }
 
@@ -286,16 +337,21 @@ bool Triangle::isValidTriangle() {
   using std::min;
 
   if (not isValidFronts() or not isValidAngles()) {
+    qDebug() << "0";
     return false;
   }
 
-  if (a == b && a == c) {
-    return alpha == beta && alpha == gamma && round(alpha) == 60;
-  }
-  if (alpha == beta && alpha == gamma && alpha == 60) {
-    return kRound(a, fronts_precision) == kRound(b, fronts_precision) &&
-           kRound(a, fronts_precision) == kRound(c, fronts_precision);
-  } else {
+  if(alpha == 90 && round(a*a) != round(b*b+c*c)) return false;
+  if(beta == 90 && round(b*b) != round(a*a+c*c)) return false;
+  if(gamma == 90 && round(c*c) != round(a*a+b*b)) return false;
+
+  if(a == b && alpha != beta) return false;
+  if(b == c && beta != gamma) return false;
+  if(a == c && alpha != gamma) return false;
+  if(alpha == beta && a != b) return false;
+  if(alpha == gamma && a != c) return false;
+  if(beta == gamma && b != c) return false;
+
     double largestSide = max(a, max(b, c));
     double leastSide = min(a, min(b, c));
     double largestAngle = max(alpha, max(beta, gamma));
@@ -322,6 +378,6 @@ bool Triangle::isValidTriangle() {
     if (largestSide == c && largestAngle != gamma) {
       return false;
     }
-    return true;
-  }
+
+  return true;
 }

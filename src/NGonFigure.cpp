@@ -68,7 +68,6 @@ void NGonFigure::tableCellChanged(QTableWidgetItem *item)
     updateProperties();
     updateTableColumnsQuantity();
     alignItemTextAtCenter(item);
-    //calcNgon();
     drawNgonSuggestion();
     updateAnglesFunctions();
     updatePropertiesInTable();
@@ -195,11 +194,15 @@ void NGonFigure::calcNgon()
     if(angles.size() <= 3 && fronts.size() <= 3)
     {
         Triangle triangle(fronts, angles);
-        angles = triangle.anglesAsMap();
-        fronts = triangle.frontsAsMap();
+        if(triangle.isValidTriangle())
+        {
+            angles = triangle.anglesAsMap();
+            fronts = triangle.frontsAsMap();
+        }
     }
     updateAnglesFunctions();
     updatePropertiesInTable();
+    drawNgonSuggestion();
 }
 
 void NGonFigure::resetData()
