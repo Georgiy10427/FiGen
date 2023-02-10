@@ -402,19 +402,19 @@ bool Triangle::isValidTriangle()
     forthPoint = rotatePoint(firstPoint, -beta, forthPoint);
 
     qDebug() << QString("A: (%1, %2); B: (%3, %4)").arg(thirdPoint.x()).arg(thirdPoint.y()).arg(forthPoint.x()).arg(forthPoint.y());
-    if(abs(thirdPoint.x()-forthPoint.x()) > 3)
+    if(abs(thirdPoint.x()-forthPoint.x()) > 5)
     {
         return false;
     }
-    if(abs(thirdPoint.y()-forthPoint.y()) > 3)
+    if(abs(thirdPoint.y()-forthPoint.y()) > 5)
     {
         return false;
     }
-    if(abs(forthPoint.x() - forthPoint.x()) > 3)
+    if(abs(forthPoint.x() - forthPoint.x()) > 5)
     {
         return false;
     }
-    if(abs(forthPoint.y() - forthPoint.y()) > 3)
+    if(abs(forthPoint.y() - forthPoint.y()) > 5)
     {
         return false;
     }
