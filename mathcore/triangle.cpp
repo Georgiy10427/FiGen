@@ -12,10 +12,6 @@ Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles,
 
 void Triangle::addMissingInformation(QMap<int, double> fronts,
                                      QMap<int, double> angles) {
-  qDebug() << "------------------------------";
-  qDebug() << QString("Данные для решения треугольника: (%1, %2, %3), [%4, %5, %6]")
-              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
-
   if(frontsQuantity() == 3 and anglesQuantity() == 3)
   {
       calculateSquare();
@@ -30,21 +26,10 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   }
 
   fillRectangularTriangle();
-  qDebug() << QString("Дополнения от анализа на прямоугольный треугольник: (%1, %2, %3), [%4, %5, %6]")
-              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
   fillIsoscalesTriangle();
-  qDebug() << QString("Дополнения от анализа на равносторонний треугольник: (%1, %2, %3), [%4, %5, %6]")
-              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
-
   if (frontsQuantity() == 3 && isValidFronts()) {
-    if (anglesQuantity() == 2 && validAvailableAngles(angles)) {
-      fillMissingAngle();
-    }
     calculateMissingAngles();
   } else if (frontsQuantity() == 2 && validAvailableAngles(angles)) {
-    if (anglesQuantity() == 2) {
-      fillMissingAngle();
-    }
     if (calculateMissingFront()) {
       calculateMissingAngles();
     }
@@ -53,14 +38,9 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   calculateSquare();
   calculateInscribedCircleRadius();
   calculateCircumscribedCircleRadius();
-
-  qDebug() << QString("Площадь: %1").arg(square);
-  qDebug() << QString("До округления: (%1, %2, %3), [%4, %5, %6]")
-              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
-  if (not isValidTriangle()) {
+  roundFields();
+  /*if (not isValidTriangle()) {
     unpackFromMap(fronts, angles);
-    qDebug() << QString("Откат: (%1, %2, %3), [%4, %5, %6]")
-                .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
   } else {
     // round values
     auto pointFronts = frontsAsMap();
@@ -73,17 +53,11 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
     kRound(&b, fronts_precision);
     kRound(&c, fronts_precision);
 
-    qDebug() << QString("После округления: (%1, %2, %3), [%4, %5, %6]")
-                .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
-
     if(not isValidTriangle())
     {
         unpackFromMap(pointFronts, pointAngles);
-        qDebug("Откат...");
     }
-  }
-  qDebug() << QString("Расчет окончен: (%1, %2, %3), [%4, %5, %6]")
-              .arg(a).arg(b).arg(c).arg(alpha).arg(beta).arg(gamma);
+  }*/
 }
 
 void Triangle::unpackFromMap(QMap<int, double> fronts,
@@ -104,16 +78,20 @@ void Triangle::unpackFromMap(QMap<int, double> fronts,
 }
 
 void Triangle::calculateMissingAngles() {
+  using std::acos;
   fillMissingAngle();
   if (!alpha) {
     this->alpha = toDegrees(acos((b * b + c * c - a * a) / (2 * b * c)));
   }
+  fillMissingAngle();
   if (!beta) {
     this->beta = toDegrees(acos((a * a + c * c - b * b) / (2 * a * c)));
   }
+  fillMissingAngle();
   if (!gamma) {
     this->gamma = toDegrees(acos((a * a + b * b - c * c) / (2 * a * b)));
   }
+  fillMissingAngle();
 }
 
 void Triangle::fillMissingAngle() {
@@ -283,6 +261,7 @@ bool Triangle::validAvailableAngles(QMap<int, double> angles) {
 bool Triangle::isValidAngles() {
   double sum = alpha + beta + gamma;
   int quantity = (alpha > 0) + (beta > 0) + (gamma > 0);
+  qDebug() << round(sum);
   if (round(sum) == 180 && quantity == 3)
     return true;
   else if (sum < 180 && quantity < 3)
@@ -332,52 +311,112 @@ QMap<int, double> Triangle::frontsAsMap() {
   return fronts;
 }
 
-bool Triangle::isValidTriangle() {
-  using std::max;
-  using std::min;
-
-  if (not isValidFronts() or not isValidAngles()) {
-    qDebug() << "0";
-    return false;
-  }
-
-  if(alpha == 90 && round(a*a) != round(b*b+c*c)) return false;
-  if(beta == 90 && round(b*b) != round(a*a+c*c)) return false;
-  if(gamma == 90 && round(c*c) != round(a*a+b*b)) return false;
-
-  if(a == b && alpha != beta) return false;
-  if(b == c && beta != gamma) return false;
-  if(a == c && alpha != gamma) return false;
-  if(alpha == beta && a != b) return false;
-  if(alpha == gamma && a != c) return false;
-  if(beta == gamma && b != c) return false;
-
-    double largestSide = max(a, max(b, c));
-    double leastSide = min(a, min(b, c));
-    double largestAngle = max(alpha, max(beta, gamma));
-    double leastAngle = min(alpha, min(beta, gamma));
-
-    // check the least side and angle
-    if (leastSide == a && leastAngle != alpha) {
-      return false;
+bool Triangle::isValidRectangularTriangle()
+{
+    if(alpha == 90 || beta == 90 || gamma == 90)
+    {
+        if(alpha == 90 && round(a*a) != round(b*b+c*c)) return false;
+        if(beta == 90 && round(b*b) != round(a*a+c*c)) return false;
+        if(gamma == 90 && round(c*c) != round(a*a+b*b)) return false;
+        return true;
+    } else {
+        return false;
     }
-    if (leastSide == b && leastAngle != beta) {
-      return false;
-    }
-    if (leastSide == c && leastAngle != gamma) {
-      return false;
-    }
+}
 
-    // check the largest side and angle
-    if (largestSide == a && largestAngle != alpha) {
-      return false;
-    }
-    if (largestSide == b && largestAngle != beta) {
-      return false;
-    }
-    if (largestSide == c && largestAngle != gamma) {
-      return false;
-    }
+void Triangle::roundFields()
+{
+    using std::pow;
 
-  return true;
+    auto doubleFronts = frontsAsMap();
+    auto doubleAngles = anglesAsMap();
+    bool wasRectangular = isValidRectangularTriangle();
+
+    kRound(&a, fronts_precision);
+    kRound(&b, fronts_precision);
+    kRound(&c, fronts_precision);
+    kRound(&alpha, angles_precision);
+    kRound(&beta, angles_precision);
+    gamma = 180 - (alpha + beta);
+
+    if(not isValidRectangularTriangle() && wasRectangular)
+    {
+        if(fronts_precision >= 3)
+        {
+            unpackFromMap(doubleFronts, doubleAngles);
+            return;
+        } else{
+            ++fronts_precision;
+            unpackFromMap(doubleFronts, doubleAngles);
+        }
+    }
+}
+
+QPoint Triangle::rotatePoint(QPoint origin, double angle, QPoint point)
+{
+    double s = std::sin(toRadians(angle));
+    double c = std::cos(toRadians(angle));
+
+    point.setX(point.x()-origin.x());
+    point.setY(point.y()-origin.y());
+
+    double xnew = point.x()*c-point.y()*s;
+    double ynew = point.x()*s+point.y()*c;
+
+    point.setX(xnew+origin.x());
+    point.setY(ynew+origin.y());
+    return point;
+}
+
+bool Triangle::isValidTriangle()
+{
+    using std::min;
+    using std::max;
+
+    if(not isValidFronts()) return false;
+
+    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin, marginBottom;
+    double scale=1;
+    QPoint firstPoint, secondPoint, thirdPoint, forthPoint;
+    QSize canvasSize(300, 400);
+
+    // calculate scaleFactor and margins
+    maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
+    maxSideLength = max(a, max(b, c));
+    scaleFactor = maxLineLength/maxSideLength;
+    aFrontMargin = (canvasSize.width() - a*scaleFactor)/2;
+    marginBottom = canvasSize.height()*0.65; // get 66 percents as the margin bottom
+
+    // place 3 points
+    firstPoint = QPoint(aFrontMargin, marginBottom);
+    secondPoint = QPoint(aFrontMargin + a*scaleFactor, marginBottom);
+    thirdPoint = QPoint(secondPoint.x() - b*scaleFactor, marginBottom);
+    forthPoint = QPoint(aFrontMargin + c*scaleFactor, marginBottom);
+
+    // rotate B side
+    thirdPoint = rotatePoint(secondPoint, gamma, thirdPoint);
+    forthPoint = rotatePoint(firstPoint, -beta, forthPoint);
+
+    qDebug() << QString("A: (%1, %2); B: (%3, %4)").arg(thirdPoint.x()).arg(thirdPoint.y()).arg(forthPoint.x()).arg(forthPoint.y());
+    if(abs(thirdPoint.x()-forthPoint.x()) > 3)
+    {
+        return false;
+    }
+    if(abs(thirdPoint.y()-forthPoint.y()) > 3)
+    {
+        return false;
+    }
+    if(abs(forthPoint.x() - forthPoint.x()) > 3)
+    {
+        return false;
+    }
+    if(abs(forthPoint.y() - forthPoint.y()) > 3)
+    {
+        return false;
+    }
+    if(alpha != 180-(beta+gamma))
+    {
+        return false;
+    }
+    return true;
 }

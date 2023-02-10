@@ -165,9 +165,9 @@ void NGonFigure::updateAnglesFunctions()
     {
         if(angles.contains(i))
         {
-            cos_values.insert(i, round(cos(toRadians(angles[i])*100))/100 );
-            sin_values.insert(i, round(sin(toRadians(angles[i]))*100)/100 );
-            tan_values.insert(i, round(tan(toRadians(angles[i]))*100)/100 );
+            cos_values.insert(i, round( cos(toRadians(angles[i]))*10000)/10000 );
+            sin_values.insert(i, round( sin(toRadians(angles[i]))*10000)/10000 );
+            tan_values.insert(i, round( tan(toRadians(angles[i]))*10000)/10000 );
         }
     }
 }

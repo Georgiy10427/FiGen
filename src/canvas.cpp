@@ -31,7 +31,7 @@ void Canvas::paintEvent(QPaintEvent *)
 
 void Canvas::setCurrentFigure(Triangle t)
 {
-    this->triangle = t;
+    this->current_triangle = t;
     currentFigure = FTriangle;
     update();
 }
@@ -78,6 +78,40 @@ QPolygon Canvas::getTriangleGeometry(QSize canvasSize, Triangle triangle, double
     return QPolygon({firstPoint, secondPoint, thirdPoint, forthPoint});
 }
 
+QList<QLine> Canvas::getTriangleShape(QSize canvasSize, Triangle triangle, double scale)
+{
+    using std::min, std::max;
+    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin, marginBottom;
+    QPoint firstPoint, secondPoint, thirdPoint, forthPoint;
+
+    // calculate scaleFactor and margins
+    maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
+    maxSideLength = max(triangle.a, max(triangle.b, triangle.c));
+    scaleFactor = maxLineLength/maxSideLength;
+    aFrontMargin = (canvasSize.width() - triangle.a*scaleFactor)/2;
+    marginBottom = canvasSize.height()*0.65; // get 66 percents as the margin bottom
+
+    // place 3 points
+    firstPoint = QPoint(aFrontMargin, marginBottom);
+    secondPoint = QPoint(aFrontMargin + triangle.a*scaleFactor, marginBottom);
+    thirdPoint = QPoint(secondPoint.x() - triangle.b*scaleFactor, marginBottom);
+    forthPoint = QPoint(aFrontMargin + triangle.c*scaleFactor, marginBottom);
+
+    // rotate B side
+    thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
+    forthPoint = rotatePoint(firstPoint, -triangle.beta, forthPoint);
+
+    return QList<QLine>({QLine(firstPoint, secondPoint),
+                         QLine(secondPoint, thirdPoint),
+                         QLine(firstPoint, forthPoint)});
+}
+
+int Canvas::distance(QPoint p1, QPoint p2)
+{
+    using std::sqrt, std::pow;
+    return round(sqrt(pow(p2.x()-p1.x(), 2) + pow(p2.y()-p1.y(), 2)));
+}
+
 void Canvas::drawTriangle()
 {
     QPainter painter(this);
@@ -86,20 +120,21 @@ void Canvas::drawTriangle()
     painter.setFont(QFont("Droid Sans", 14, 400, false));
     painter.setPen(pen);
 
-    QPolygon trianglePoints = getTriangleGeometry(size(), triangle);
-    painter.drawPolygon(trianglePoints);
+    QPolygon trianglePoints = getTriangleGeometry(size(), current_triangle);
+    painter.drawLines(getTriangleShape(size(), current_triangle));
 
     pen.setColor(QPalette().color(QPalette::WindowText));
     painter.setPen(pen);
+
     int captionYPosition = trianglePoints[2].y()/2;
     QRect titlePosition = rect();
     titlePosition.setY(captionYPosition);
     painter.drawText(titlePosition, Qt::AlignHCenter, "Треугольник");
 
     QString squarePropertyCaption;
-    if(triangle.square > 0)
+    if(current_triangle.isValidTriangle())
     {
-        squarePropertyCaption = QString("S = %1").arg(triangle.square);
+        squarePropertyCaption = QString("S = %1").arg(current_triangle.square);
     } else {
         squarePropertyCaption = "Некорректный треугольник.";
     }

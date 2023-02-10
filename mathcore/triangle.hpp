@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QString>
 #include <QDebug>
+#include <QPoint>
+#include <QSize>
 #include <algorithm>
 #include <iostream>
 
@@ -30,6 +32,8 @@ class Triangle : private BaseFigure {
   int anglesQuantity();
   bool isValidAngles();
   bool isValidFronts();
+  void roundFields();
+  bool isValidRectangularTriangle();
 
   QMap<int, double> anglesAsMap();
   QMap<int, double> frontsAsMap();
@@ -56,6 +60,7 @@ class Triangle : private BaseFigure {
   void calculateSquare();
   void calculateCircumscribedCircleRadius();
   void calculateInscribedCircleRadius();
+  QPoint rotatePoint(QPoint origin, double angle, QPoint point);
 };
 
 #endif  // TRIANGLE_H
