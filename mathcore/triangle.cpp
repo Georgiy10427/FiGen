@@ -27,6 +27,10 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
 
   fillRectangularTriangle();
   fillIsoscalesTriangle();
+
+  qDebug() << "A:" << a << " " << b << " " << c;
+  qDebug() << alpha << " " << beta << " "<< gamma;
+
   if (frontsQuantity() == 3 && isValidFronts()) {
     calculateMissingAngles();
   } else if (frontsQuantity() == 2 && validAvailableAngles(angles)) {
@@ -414,7 +418,8 @@ bool Triangle::isValidTriangle()
     {
         return false;
     }
-    if(alpha != 180-(beta+gamma))
+
+    if(round(alpha) != round(180-(beta+gamma)))
     {
         return false;
     }
