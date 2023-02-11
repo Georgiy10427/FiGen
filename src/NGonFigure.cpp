@@ -124,7 +124,12 @@ void NGonFigure::setRowItems(int row, QMap<int, double> items)
         }
         if(items.contains(i))
         {
-            cell->setText(QString::number(items[i]));
+            if(items[i] == -1){
+                // empty value
+                cell->setText("");
+            } else {
+                cell->setText(QString::number(items[i]));
+            }
         }
     }
 }
@@ -168,6 +173,10 @@ void NGonFigure::updateAnglesFunctions()
             cos_values.insert(i, round( cos(toRadians(angles[i]))*10000)/10000 );
             sin_values.insert(i, round( sin(toRadians(angles[i]))*10000)/10000 );
             tan_values.insert(i, round( tan(toRadians(angles[i]))*10000)/10000 );
+        } else {
+            cos_values.insert(i, -1);
+            sin_values.insert(i, -1);
+            tan_values.insert(i, -1);
         }
     }
 }

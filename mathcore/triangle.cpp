@@ -6,27 +6,25 @@ Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles,
                    int fronts_precision, int angles_precision) {
   this->fronts_precision = fronts_precision;
   this->angles_precision = angles_precision;
-  unpackFromMap(fronts, angles);
   addMissingInformation(fronts, angles);
 }
 
 void Triangle::addMissingInformation(QMap<int, double> fronts,
                                      QMap<int, double> angles) {
+  unpackFromMap(fronts, angles);
   if(frontsQuantity() == 3 and anglesQuantity() == 3)
   {
-      calculateSquare();
-      calculateInscribedCircleRadius();
-      calculateCircumscribedCircleRadius();
+      calculateProperties();
       return;
   }
+
+  fillRectangularTriangle();
+  fillIsoscalesTriangle();
 
   if(isValidAngles())
   {
       fillMissingAngle();
   }
-
-  fillRectangularTriangle();
-  fillIsoscalesTriangle();
 
   qDebug() << "A:" << a << " " << b << " " << c;
   qDebug() << alpha << " " << beta << " "<< gamma;
@@ -39,29 +37,11 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
     }
   }
 
-  calculateSquare();
-  calculateInscribedCircleRadius();
-  calculateCircumscribedCircleRadius();
+  calculateProperties();
   roundFields();
-  /*if (not isValidTriangle()) {
-    unpackFromMap(fronts, angles);
-  } else {
-    // round values
-    auto pointFronts = frontsAsMap();
-    auto pointAngles = anglesAsMap();
-
-    kRound(&alpha, angles_precision);
-    kRound(&beta, angles_precision);
-    gamma = 180 - (alpha + beta);
-    kRound(&a, fronts_precision);
-    kRound(&b, fronts_precision);
-    kRound(&c, fronts_precision);
-
-    if(not isValidTriangle())
-    {
-        unpackFromMap(pointFronts, pointAngles);
-    }
-  }*/
+  qDebug() << "-----------";
+  qDebug() << "A:" << a << " " << b << " " << c;
+  qDebug() << alpha << " " << beta << " "<< gamma;
 }
 
 void Triangle::unpackFromMap(QMap<int, double> fronts,
@@ -202,7 +182,7 @@ void Triangle::fillIsoscalesTriangle() {
 }
 
 void Triangle::fillRectangularTriangle() {
-  if (not validAvailableAngles(anglesAsMap())) return;
+  if (not isValidAngles()) return;
 
   // a cathet opposite of 30 degrees angle equals half past of a hypotenuse
   if (alpha == 90 && a) {
@@ -265,7 +245,6 @@ bool Triangle::validAvailableAngles(QMap<int, double> angles) {
 bool Triangle::isValidAngles() {
   double sum = alpha + beta + gamma;
   int quantity = (alpha > 0) + (beta > 0) + (gamma > 0);
-  qDebug() << round(sum);
   if (round(sum) == 180 && quantity == 3)
     return true;
   else if (sum < 180 && quantity < 3)
@@ -276,7 +255,9 @@ bool Triangle::isValidAngles() {
 }
 
 bool Triangle::validFronts(QMap<int, double> fronts) {
-  if (fronts.keys() != QList<int>{0, 1, 2}) return false;
+  if (!fronts.contains(0) || !fronts.contains(1) || !fronts.contains(2)) {
+      return false;
+  }
   double sideA = fronts[0];
   double sideB = fronts[1];
   double sideC = fronts[2];
@@ -315,6 +296,11 @@ QMap<int, double> Triangle::frontsAsMap() {
   return fronts;
 }
 
+bool Triangle::isRectangular()
+{
+    return alpha == 90 || beta == 90 || gamma == 90;
+}
+
 bool Triangle::isValidRectangularTriangle()
 {
     if(alpha == 90 || beta == 90 || gamma == 90)
@@ -332,28 +318,46 @@ void Triangle::roundFields()
 {
     using std::pow;
 
-    auto doubleFronts = frontsAsMap();
-    auto doubleAngles = anglesAsMap();
+    auto decimalFronts = frontsAsMap();
+    auto decimalAngles = anglesAsMap();
+    bool wasValid = isValidTriangle();
     bool wasRectangular = isValidRectangularTriangle();
 
-    kRound(&a, fronts_precision);
-    kRound(&b, fronts_precision);
-    kRound(&c, fronts_precision);
-    kRound(&alpha, angles_precision);
-    kRound(&beta, angles_precision);
-    gamma = 180 - (alpha + beta);
+    auto rounding = [this](int frontsPrecision, int anglesPrecision)
+    {
+        kRound(&a, frontsPrecision);
+        kRound(&b, frontsPrecision);
+        kRound(&c, frontsPrecision);
+        kRound(&alpha, anglesPrecision);
+        kRound(&beta, anglesPrecision);
+        gamma = 180 - (alpha + beta);
+    };
+    rounding(fronts_precision, angles_precision);
 
     if(not isValidRectangularTriangle() && wasRectangular)
     {
-        if(fronts_precision >= 3)
+        for(int d = 1; d < kmaxDecimal && !isValidRectangularTriangle(); ++d)
         {
-            unpackFromMap(doubleFronts, doubleAngles);
-            return;
-        } else{
-            ++fronts_precision;
-            unpackFromMap(doubleFronts, doubleAngles);
+            unpackFromMap(decimalFronts, decimalAngles);
+            rounding(d, d);
         }
     }
+    if(not isValidTriangle() && wasValid)
+    {
+        for(int d = 1; d < kmaxDecimal && !isValidTriangle(); ++d)
+        {
+            unpackFromMap(decimalFronts, decimalAngles);
+            rounding(d, d);
+        }
+    }
+}
+
+void Triangle::calculateProperties()
+{
+    // Calculate square, inscribed circle radius, circumscribed circle radius
+    calculateSquare();
+    calculateCircumscribedCircleRadius();
+    calculateInscribedCircleRadius();
 }
 
 QPoint Triangle::rotatePoint(QPoint origin, double angle, QPoint point)
@@ -367,8 +371,8 @@ QPoint Triangle::rotatePoint(QPoint origin, double angle, QPoint point)
     double xnew = point.x()*c-point.y()*s;
     double ynew = point.x()*s+point.y()*c;
 
-    point.setX(xnew+origin.x());
-    point.setY(ynew+origin.y());
+    point.setX(round(xnew+origin.x()));
+    point.setY(round(ynew+origin.y()));
     return point;
 }
 
@@ -388,33 +392,33 @@ bool Triangle::isValidTriangle()
     maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
     maxSideLength = max(a, max(b, c));
     scaleFactor = maxLineLength/maxSideLength;
-    aFrontMargin = (canvasSize.width() - a*scaleFactor)/2;
-    marginBottom = canvasSize.height()*0.65; // get 66 percents as the margin bottom
+    aFrontMargin = round((canvasSize.width() - a*scaleFactor)/2);
+    marginBottom = round(canvasSize.height()*0.65); // get 66 percents as the margin bottom
 
     // place 3 points
     firstPoint = QPoint(aFrontMargin, marginBottom);
-    secondPoint = QPoint(aFrontMargin + a*scaleFactor, marginBottom);
-    thirdPoint = QPoint(secondPoint.x() - b*scaleFactor, marginBottom);
-    forthPoint = QPoint(aFrontMargin + c*scaleFactor, marginBottom);
+    secondPoint = QPoint(round(aFrontMargin + a*scaleFactor), marginBottom);
+    thirdPoint = QPoint(round(secondPoint.x() - b*scaleFactor), marginBottom);
+    forthPoint = QPoint(round(aFrontMargin + c*scaleFactor), marginBottom);
 
     // rotate B side
     thirdPoint = rotatePoint(secondPoint, gamma, thirdPoint);
     forthPoint = rotatePoint(firstPoint, -beta, forthPoint);
 
     qDebug() << QString("A: (%1, %2); B: (%3, %4)").arg(thirdPoint.x()).arg(thirdPoint.y()).arg(forthPoint.x()).arg(forthPoint.y());
-    if(abs(thirdPoint.x()-forthPoint.x()) > 5)
+    if(abs(thirdPoint.x()-forthPoint.x()) > checkAccuracy)
     {
         return false;
     }
-    if(abs(thirdPoint.y()-forthPoint.y()) > 5)
+    if(abs(thirdPoint.y()-forthPoint.y()) > checkAccuracy)
     {
         return false;
     }
-    if(abs(forthPoint.x() - forthPoint.x()) > 5)
+    if(abs(forthPoint.x() - forthPoint.x()) > checkAccuracy)
     {
         return false;
     }
-    if(abs(forthPoint.y() - forthPoint.y()) > 5)
+    if(abs(forthPoint.y() - forthPoint.y()) > checkAccuracy)
     {
         return false;
     }

@@ -27,13 +27,15 @@ class Triangle : private BaseFigure {
   bool isIsosceles();
   bool isIsoscelesByFronts();
   bool isIsoscelesByAngles();
+  bool isRectangular();
+  bool isEquilateral();
 
   int frontsQuantity();
   int anglesQuantity();
   bool isValidAngles();
   bool isValidFronts();
-  void roundFields();
   bool isValidRectangularTriangle();
+  void roundFields();
 
   QMap<int, double> anglesAsMap();
   QMap<int, double> frontsAsMap();
@@ -42,7 +44,7 @@ class Triangle : private BaseFigure {
   double alpha, beta, gamma;
   double square;
   double circumscribedCircleRadius, inscribedCircleRadius;
-  int fronts_precision = 0, angles_precision = 0;
+  int fronts_precision = 0, angles_precision = 0, checkAccuracy = 3;
 
  private:
   void unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles);
@@ -50,13 +52,14 @@ class Triangle : private BaseFigure {
   /* finders: */
   void addMissingInformation(QMap<int, double> fronts,
                              QMap<int, double> angles);
+  void fillMissingAngle();
   void fillIsoscalesTriangle();
   void fillRectangularTriangle();
   void calculateMissingAngles();
-  void fillMissingAngle();
   bool calculateMissingFront();
 
   /* simple calculators */
+  void calculateProperties();
   void calculateSquare();
   void calculateCircumscribedCircleRadius();
   void calculateInscribedCircleRadius();

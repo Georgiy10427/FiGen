@@ -47,8 +47,8 @@ QPoint Canvas::rotatePoint(QPoint origin, double angle, QPoint point)
     double xnew = point.x()*c-point.y()*s;
     double ynew = point.x()*s+point.y()*c;
 
-    point.setX(xnew+origin.x());
-    point.setY(ynew+origin.y());
+    point.setX(round(xnew+origin.x()));
+    point.setY(round(ynew+origin.y()));
     return point;
 }
 
@@ -88,14 +88,14 @@ QList<QLine> Canvas::getTriangleShape(QSize canvasSize, Triangle triangle, doubl
     maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
     maxSideLength = max(triangle.a, max(triangle.b, triangle.c));
     scaleFactor = maxLineLength/maxSideLength;
-    aFrontMargin = (canvasSize.width() - triangle.a*scaleFactor)/2;
-    marginBottom = canvasSize.height()*0.65; // get 66 percents as the margin bottom
+    aFrontMargin = round((canvasSize.width() - triangle.a*scaleFactor)/2);
+    marginBottom = round(canvasSize.height()*0.65); // get 66 percents as the margin bottom
 
     // place 3 points
     firstPoint = QPoint(aFrontMargin, marginBottom);
-    secondPoint = QPoint(aFrontMargin + triangle.a*scaleFactor, marginBottom);
-    thirdPoint = QPoint(secondPoint.x() - triangle.b*scaleFactor, marginBottom);
-    forthPoint = QPoint(aFrontMargin + triangle.c*scaleFactor, marginBottom);
+    secondPoint = QPoint(round(aFrontMargin + triangle.a*scaleFactor), marginBottom);
+    thirdPoint = QPoint(round(secondPoint.x() - triangle.b*scaleFactor), marginBottom);
+    forthPoint = QPoint(round(aFrontMargin + triangle.c*scaleFactor), marginBottom);
 
     // rotate B side
     thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
