@@ -61,6 +61,9 @@ class Triangle : private BaseFigure {
     void fillRectangularTriangle();
     void calculateMissingAngles();
     bool calculateMissingFront();
+    void calcSideOpposite30Angle(double *hypotenuse, double *catet);
+    double *getSideOppositeAngle(double angle);
+    double *getMissingCatet();
 
     /* simple calculators */
     void calculateProperties();

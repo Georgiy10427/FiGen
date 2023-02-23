@@ -13,6 +13,8 @@ Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles,
 void Triangle::addMissingInformation(QMap<int, double> fronts,
                                      QMap<int, double> angles,
                                      bool rollbackOnFail) {
+    /* Solve the triangle and check it. */
+
     unpackFromMap(fronts, angles);
     if (frontsQuantity() == 3 and anglesQuantity() == 3) {
         calculateProperties();
@@ -56,6 +58,7 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
 
 void Triangle::unpackFromMap(QMap<int, double> fronts,
                              QMap<int, double> angles) {
+    /* Move values from the maps to class private fields. */
     alpha = 0;
     beta = 0;
     gamma = 0;
@@ -78,6 +81,7 @@ void Triangle::unpackFromMap(QMap<int, double> fronts,
 }
 
 void Triangle::calculateMissingAngles() {
+    /* Implements the inverse cosine theorem to calculate missing angles. */
     using std::acos;
     fillMissingAngle();
     if (!alpha) {
@@ -95,6 +99,7 @@ void Triangle::calculateMissingAngles() {
 }
 
 void Triangle::fillMissingAngle() {
+    /* It uses sum of angles to calculate third angle */
     if (alpha && beta && !gamma) {
         gamma = 180 - (alpha + beta);
     } else if (alpha && gamma && !beta) {
@@ -105,6 +110,7 @@ void Triangle::fillMissingAngle() {
 }
 
 bool Triangle::calculateMissingFront() {
+    /* Use the inverse cosine theorem to calculate missing front */
     if (a && b && !c && gamma) {
         c = sqrt(a * a + b * b - 2 * a * b * cos(toRadians(gamma)));
         return true;
@@ -121,6 +127,7 @@ bool Triangle::calculateMissingFront() {
 }
 
 bool Triangle::isIsoscelesByAngles() {
+    /* It returns true, if the triangle has 2 same fronts.*/
     if (alpha && alpha == beta)
         return true;
     else if (beta && beta == gamma)
@@ -131,6 +138,7 @@ bool Triangle::isIsoscelesByAngles() {
 }
 
 bool Triangle::isIsoscelesByFronts() {
+    /* It returns true, if the triangle has 2 same angles.*/
     if (a && a == b)
         return true;
     else if (b && b == c)
@@ -141,10 +149,12 @@ bool Triangle::isIsoscelesByFronts() {
 }
 
 bool Triangle::isIsosceles() {
+    /* It returns true, if the triangle is isoscale.*/
     return isIsoscelesByAngles() || isIsoscelesByFronts();
 }
 
 void Triangle::calculateSquare() {
+    /* Calculates the triangle square by the Geron's formula. */
     if (a > 0 and b > 0 and c > 0) {
         double p = (a + b + c) / 2;
         square =
@@ -155,23 +165,51 @@ void Triangle::calculateSquare() {
 bool Triangle::isEquilateralByFronts() { return (a == b) && (a == c); }
 
 bool Triangle::isEquilaterialByAngles() {
-    return (alpha == beta) && (alpha == gamma);
+    /* Returns true, if the triangle has angles equals 60 degrees. */
+    return (alpha == beta) && (alpha == gamma) && alpha == 60;
+}
+
+bool Triangle::isEquilateral() {
+    /* Returns true, if the triangle is equilateral. */
+    return isEquilateralByFronts() || isEquilaterialByAngles();
+}
+
+bool Triangle::isRectangular() {
+    /* Returns true, if the triangle is rectangular by the angle.*/
+    return alpha == 90 || beta == 90 || gamma == 90;
+}
+
+bool Triangle::isValidRectangularTriangle() {
+    /* Uses the Pythagorean theorem to check a rectangular triangle.*/
+    if (alpha == 90 || beta == 90 || gamma == 90) {
+        if (alpha == 90 && round(a * a) != round(b * b + c * c))
+            return false;
+        if (beta == 90 && round(b * b) != round(a * a + c * c))
+            return false;
+        if (gamma == 90 && round(c * c) != round(a * a + b * b))
+            return false;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void Triangle::calculateCircumscribedCircleRadius() {
-    // refactor
+    /* Returns true, if the triangle has angles equals 60 degrees. */
     if (a > 0 && b > 0 && c > 0 && square > 0) {
         circumscribedCircleRadius = (a * b * c) / (4 * square);
     }
 }
 
 void Triangle::calculateInscribedCircleRadius() {
+    /* Calculate the inscribed circle radius from the sides and square. */
     if (a > 0 && b > 0 && c > 0 && square > 0) {
         inscribedCircleRadius = square / ((a + b + c) / 2);
     }
 }
 
 void Triangle::fillIsoscalesTriangle() {
+    /* Implements the isoscale triangle properties */
     using std::max;
     if (a and b and c and not isValidFronts())
         return;
@@ -211,49 +249,38 @@ void Triangle::fillIsoscalesTriangle() {
     }
 }
 
+void Triangle::calcSideOpposite30Angle(double *hypotenuse, double *catet) {
+    /* Add catet or hypotenuse, if the rectangular triangle has an angle equals
+     * 30 degrees.*/
+    if (*hypotenuse <= 0 and *catet > 0) {
+        *hypotenuse = 2 * (*catet);
+    } else if (*catet <= 0 and *hypotenuse > 0) {
+        *catet = *hypotenuse / 2;
+    }
+}
+
+double *Triangle::getSideOppositeAngle(double angle) {
+    /* Returns side, which lying opposite the angle */
+    double *sides[] = {&a, &b, &c};
+    double *angles[] = {&alpha, &beta, &gamma};
+    for (int i = 0; i < 3; ++i) {
+        if (*angles[i] == angle) {
+            return sides[i];
+        }
+    }
+    return NULL;
+}
+
 void Triangle::fillRectangularTriangle() {
+    /* Implements rectangular triangle properties */
     if (not isValidAngles())
         return;
 
-    // a cathet opposite of 30 degrees angle equals half past of a
-    // hypotenuse
-    if (alpha == 90) {
-        if (gamma == 30) {
-            if (not c and a > 0)
-                c = a / 2;
-            else if (not a and c > 0)
-                a = 2 * c;
-        } else if (beta == 30) {
-            if (not b and a > 0)
-                b = a / 2;
-            else if (not a and b > 0)
-                a = 2 * b;
-        }
-    } else if (gamma == 90) {
-        if (beta == 30) {
-            if (not b and c > 0)
-                b = c / 2;
-            else if (not c and b > 0)
-                c = 2 * b;
-        } else if (alpha == 30) {
-            if (not a and c > 0)
-                a = c / 2;
-            else if (not c and a > 0)
-                c = 2 * a;
-        }
-    } else if (beta == 90) {
-        if (alpha == 30) {
-            if (not a and b > 0)
-                a = b / 2;
-            else if (not b and a > 0)
-                b = 2 * a;
-        }
-        if (gamma == 30) {
-            if (not c and b > 0)
-                c = b / 2;
-            else if (not b and c > 0)
-                b = 2 * c;
-        }
+    // a cathet opposite of 30 degrees angle equals half past of a hypotenuse
+    if (isRectangular() and getSideOppositeAngle(30) != NULL) {
+        double *hypotenuse = getSideOppositeAngle(90);
+        double *catet = getSideOppositeAngle(30);
+        calcSideOpposite30Angle(hypotenuse, catet);
     }
 
     // find a hypotenuse by the Pythagorean theorem
@@ -285,6 +312,7 @@ void Triangle::fillRectangularTriangle() {
 }
 
 bool Triangle::validAvailableAngles(QMap<int, double> angles) {
+    /* Realization of triangle angles sum for map */
     double sum = 0;
     for (auto angle : angles.values()) {
         sum += angle;
@@ -299,6 +327,7 @@ bool Triangle::validAvailableAngles(QMap<int, double> angles) {
 }
 
 bool Triangle::isValidAngles() {
+    /* Realization of triangle angles sum for private fields */
     double sum = alpha + beta + gamma;
     int quantity = (alpha > 0) + (beta > 0) + (gamma > 0);
     if (round(sum) == 180 && quantity == 3)
@@ -311,6 +340,7 @@ bool Triangle::isValidAngles() {
 }
 
 bool Triangle::validFronts(QMap<int, double> fronts) {
+    /* Implements the inequality of the parties (QMap) */
     if (!fronts.contains(0) || !fronts.contains(1) || !fronts.contains(2)) {
         return false;
     }
@@ -327,6 +357,7 @@ bool Triangle::validFronts(QMap<int, double> fronts) {
 }
 
 bool Triangle::isValidFronts() {
+    /* Implements the inequality of the parties */
     if (a >= b + c)
         return false;
     if (c >= a + b)
@@ -343,6 +374,7 @@ int Triangle::anglesQuantity() {
 }
 
 QMap<int, double> Triangle::anglesAsMap() {
+    /* Packs all correct angles to map. */
     QMap<int, double> angles;
     if (alpha > 0)
         angles.insert(0, alpha);
@@ -354,6 +386,7 @@ QMap<int, double> Triangle::anglesAsMap() {
 }
 
 QMap<int, double> Triangle::frontsAsMap() {
+    /* Packs all correct sides to map. */
     QMap<int, double> fronts;
     if (a > 0)
         fronts.insert(0, a);
@@ -364,25 +397,8 @@ QMap<int, double> Triangle::frontsAsMap() {
     return fronts;
 }
 
-bool Triangle::isRectangular() {
-    return alpha == 90 || beta == 90 || gamma == 90;
-}
-
-bool Triangle::isValidRectangularTriangle() {
-    if (alpha == 90 || beta == 90 || gamma == 90) {
-        if (alpha == 90 && round(a * a) != round(b * b + c * c))
-            return false;
-        if (beta == 90 && round(b * b) != round(a * a + c * c))
-            return false;
-        if (gamma == 90 && round(c * c) != round(a * a + b * b))
-            return false;
-        return true;
-    } else {
-        return false;
-    }
-}
-
 void Triangle::roundFields() {
+    /* Rounds fronts and angles, while they are correct. */
     using std::pow;
 
     auto decimalFronts = frontsAsMap();
@@ -416,8 +432,8 @@ void Triangle::roundFields() {
 }
 
 void Triangle::calculateProperties() {
-    // Calculate square, inscribed circle radius, circumscribed circle
-    // radius
+    /* Calculate the square, inscribed circle radius, circumscribed circle
+     * radius for the triangle. */
     calculateSquare();
     calculateCircumscribedCircleRadius();
     calculateInscribedCircleRadius();
@@ -439,6 +455,8 @@ QPoint Triangle::rotatePoint(QPoint origin, double angle, QPoint point) {
 }
 
 bool Triangle::isValidTriangle() {
+    /* Return true, if the triangle can exist. It was implemented by grathics
+     * method.*/
     using std::max;
     using std::min;
 
