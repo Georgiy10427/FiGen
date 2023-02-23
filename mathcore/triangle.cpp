@@ -3,14 +3,16 @@
 Triangle::Triangle() {}
 
 Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles,
-                   int fronts_precision, int angles_precision) {
+                   int fronts_precision, int angles_precision,
+                   bool rollbackOnFail) {
   this->fronts_precision = fronts_precision;
   this->angles_precision = angles_precision;
-  addMissingInformation(fronts, angles);
+  addMissingInformation(fronts, angles, rollbackOnFail);
 }
 
 void Triangle::addMissingInformation(QMap<int, double> fronts,
-                                     QMap<int, double> angles) {
+                                     QMap<int, double> angles,
+                                     bool rollbackOnFail) {
   unpackFromMap(fronts, angles);
   if(frontsQuantity() == 3 and anglesQuantity() == 3)
   {
@@ -31,6 +33,7 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
 
   if (frontsQuantity() == 3 && isValidFronts()) {
     calculateMissingAngles();
+    qDebug() << alpha << " r " << beta << " "<< gamma;
   } else if (frontsQuantity() == 2 && validAvailableAngles(angles)) {
     if (calculateMissingFront()) {
       calculateMissingAngles();
@@ -42,6 +45,17 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
   qDebug() << "-----------";
   qDebug() << "A:" << a << " " << b << " " << c;
   qDebug() << alpha << " " << beta << " "<< gamma;
+
+  if(rollbackOnFail)
+  {
+      if(isValidTriangle())
+      {
+          qDebug() << "Triangle was finished.";
+      } else {
+          qDebug() << "Rollback";
+          unpackFromMap(fronts, angles);
+      }
+  }
 }
 
 void Triangle::unpackFromMap(QMap<int, double> fronts,
@@ -135,6 +149,16 @@ void Triangle::calculateSquare() {
   }
 }
 
+bool Triangle::isEquilateralByFronts()
+{
+    return (a == b) && (a == c);
+}
+
+bool Triangle::isEquilaterialByAngles()
+{
+    return (alpha == beta) && (alpha == gamma);
+}
+
 void Triangle::calculateCircumscribedCircleRadius() {
   // refactor
   if (a > 0 && b > 0 && c > 0 && square > 0) {
@@ -185,19 +209,45 @@ void Triangle::fillRectangularTriangle() {
   if (not isValidAngles()) return;
 
   // a cathet opposite of 30 degrees angle equals half past of a hypotenuse
-  if (alpha == 90 && a) {
-    if (gamma == 30 && !c)
-      c = a / 2;
-    else if (beta == 30 && !b)
-      b = a / 2;
-  } else if (gamma == 90 && c) {
-    if (beta == 30 && !b)
-      b = c / 2;
-    else if (alpha == 30 && !a)
-      a = c / 2;
-  } else if (beta == 90 && b) {
-    if (alpha == 30 && !a) a = b / 2;
-    if (gamma == 30 && !c) c = b / 2;
+  if (alpha == 90) {
+    if (gamma == 30) {
+      if(not c and a > 0)
+          c = a / 2;
+      else if(not a and c > 0)
+          a = 2*c;
+    }
+    else if (beta == 30) {
+      if(not b and a > 0)
+          b = a / 2;
+      else if(not a and b > 0)
+          a = 2*b;
+    }
+  } else if (gamma == 90) {
+    if (beta == 30) {
+      if(not b and c > 0)
+          b = c / 2;
+      else if(not c and b > 0)
+          c = 2*b;
+    }
+    else if (alpha == 30){
+      if (not a and c > 0)
+          a = c / 2;
+      else if(not c and a > 0)
+          c = 2*a;
+    }
+  } else if (beta == 90) {
+    if (alpha == 30) {
+        if(not a and b > 0)
+            a = b / 2;
+        else if(not b and a > 0)
+            b = 2*a;
+    }
+    if (gamma == 30) {
+        if(not c and b > 0)
+            c = b / 2;
+        else if(not b and c > 0)
+            b = 2*c;
+    }
   }
 
   // find a hypotenuse by the Pythagorean theorem
@@ -382,6 +432,8 @@ bool Triangle::isValidTriangle()
     using std::max;
 
     if(not isValidFronts()) return false;
+    if(isIsoscelesByFronts() != isIsoscelesByAngles()) return false;
+    if(isEquilateralByFronts() != isEquilaterialByAngles()) return false;
 
     double maxLineLength, maxSideLength, scaleFactor, aFrontMargin, marginBottom;
     double scale=1;

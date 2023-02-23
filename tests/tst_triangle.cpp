@@ -163,7 +163,7 @@ void test_triangle::test_rectangular_triangles() {
   // fronts: 10, (5), (9)
   // angles: 90, 30, (60)
   QCOMPARE(Triangle({{0, 10}}, {{0, 90}, {1, 30}}).frontsAsMap().values(),
-           QList<double>({10, 5, 9}));
+           QList<double>({10, 5, 8.66}));
   QCOMPARE(Triangle({{0, 10}}, {{0, 90}, {1, 30}}).anglesAsMap().values(),
            QList<double>({90, 30, 60}));
 

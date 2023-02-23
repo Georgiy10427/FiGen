@@ -16,7 +16,8 @@ class Triangle : private BaseFigure {
  public:
   Triangle();
   Triangle(QMap<int, double> fronts, QMap<int, double> angles,
-           int fronts_precision = 0, int angles_precision = 0);
+           int fronts_precision = 0, int angles_precision = 0,
+           bool rollbackOnFail=true);
 
   /* validators */
   bool isValidTriangle();
@@ -29,6 +30,8 @@ class Triangle : private BaseFigure {
   bool isIsoscelesByAngles();
   bool isRectangular();
   bool isEquilateral();
+  bool isEquilateralByFronts();
+  bool isEquilaterialByAngles();
 
   int frontsQuantity();
   int anglesQuantity();
@@ -51,7 +54,8 @@ class Triangle : private BaseFigure {
 
   /* finders: */
   void addMissingInformation(QMap<int, double> fronts,
-                             QMap<int, double> angles);
+                             QMap<int, double> angles,
+                             bool rollbackOnFail=true);
   void fillMissingAngle();
   void fillIsoscalesTriangle();
   void fillRectangularTriangle();
