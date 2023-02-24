@@ -59,25 +59,21 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
 void Triangle::unpackFromMap(QMap<int, double> fronts,
                              QMap<int, double> angles) {
     /* Move values from the maps to class private fields. */
-    alpha = 0;
-    beta = 0;
-    gamma = 0;
-    if (angles.contains(0))
-        this->alpha = angles[0];
-    if (angles.contains(1))
-        this->beta = angles[1];
-    if (angles.contains(2))
-        this->gamma = angles[2];
+    a = b = c = 0;
+    double *pfronts[] = {&a, &b, &c};
+    for (int i = 0; i < 3; ++i) {
+        if (fronts.contains(i) and fronts[i] > 0) {
+            *pfronts[i] = angles[i];
+        }
+    }
 
-    a = 0;
-    b = 0;
-    c = 0;
-    if (fronts.contains(0))
-        this->a = fronts[0];
-    if (fronts.contains(1))
-        this->b = fronts[1];
-    if (fronts.contains(2))
-        this->c = fronts[2];
+    alpha = beta = gamma = 0;
+    double *pangles[] = {&alpha, &beta, &gamma};
+    for (int i = 0; i < 3; ++i) {
+        if (angles.contains(i) and angles[i] > 0) {
+            *pangles[i] = angles[i];
+        }
+    }
 }
 
 void Triangle::calculateMissingAngles() {
@@ -329,7 +325,7 @@ bool Triangle::validAvailableAngles(QMap<int, double> angles) {
 bool Triangle::isValidAngles() {
     /* Realization of triangle angles sum for private fields */
     double sum = alpha + beta + gamma;
-    int quantity = (alpha > 0) + (beta > 0) + (gamma > 0);
+    int quantity = anglesQuantity();
     if (round(sum) == 180 && quantity == 3)
         return true;
     else if (sum < 180 && quantity < 3)
