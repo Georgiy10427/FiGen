@@ -14,43 +14,46 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
                                      QMap<int, double> angles,
                                      bool rollbackOnFail) {
     /* Solve the triangle and check it. */
-
     unpackFromMap(fronts, angles);
+    print("1. Start solving triangle");
+
     if (frontsQuantity() == 3 and anglesQuantity() == 3) {
         calculateProperties();
+        print("2. Already solved", true);
         return;
     }
 
     fillRectangularTriangle();
+    print("2. Tried to apply rectangular triangle properties");
+
     fillIsoscalesTriangle();
+    print("3. Tried to apply isoscale triangle properties");
 
     if (isValidAngles()) {
         fillMissingAngle();
+        print("- Results of calculating third angle");
     }
-
-    qDebug() << "A:" << a << " " << b << " " << c;
-    qDebug() << alpha << " " << beta << " " << gamma;
 
     if (frontsQuantity() == 3 && isValidFronts()) {
         calculateMissingAngles();
-        qDebug() << alpha << " r " << beta << " " << gamma;
-    } else if (frontsQuantity() == 2 && validAvailableAngles(angles)) {
+        print("- Tried to calculate missing angle");
+    } else if (frontsQuantity() == 2 && isValidAngles()) {
         if (calculateMissingFront()) {
             calculateMissingAngles();
+            print("- Results of calculating a missing side and angle");
         }
     }
-
     calculateProperties();
+    print("4. Square and radious were calculated.");
+
     roundFields();
-    qDebug() << "-----------";
-    qDebug() << "A:" << a << " " << b << " " << c;
-    qDebug() << alpha << " " << beta << " " << gamma;
+    print("5. Rounded sides and angles values.", !rollbackOnFail);
 
     if (rollbackOnFail) {
         if (isValidTriangle()) {
-            qDebug() << "Triangle was finished.";
+            print("Triangle was solved.", true);
         } else {
-            qDebug() << "Rollback";
+            print("Triangle isn't valid. Rollback.", true);
             unpackFromMap(fronts, angles);
         }
     }
@@ -63,7 +66,7 @@ void Triangle::unpackFromMap(QMap<int, double> fronts,
     double *pfronts[] = {&a, &b, &c};
     for (int i = 0; i < 3; ++i) {
         if (fronts.contains(i) and fronts[i] > 0) {
-            *pfronts[i] = angles[i];
+            *pfronts[i] = fronts[i];
         }
     }
 
@@ -475,7 +478,7 @@ bool Triangle::isValidTriangle() {
     scaleFactor = maxLineLength / maxSideLength;
     aFrontMargin = round((canvasSize.width() - a * scaleFactor) / 2);
     marginBottom = round(canvasSize.height() *
-                         0.65); // get 66 percents as the margin bottom
+                         0.65); // get 65 percents as the margin bottom
 
     // place 3 points
     firstPoint = QPoint(aFrontMargin, marginBottom);
@@ -488,11 +491,6 @@ bool Triangle::isValidTriangle() {
     thirdPoint = rotatePoint(secondPoint, gamma, thirdPoint);
     forthPoint = rotatePoint(firstPoint, -beta, forthPoint);
 
-    qDebug() << QString("A: (%1, %2); B: (%3, %4)")
-                    .arg(thirdPoint.x())
-                    .arg(thirdPoint.y())
-                    .arg(forthPoint.x())
-                    .arg(forthPoint.y());
     if (abs(thirdPoint.x() - forthPoint.x()) > checkAccuracy) {
         return false;
     }
@@ -510,4 +508,42 @@ bool Triangle::isValidTriangle() {
         return false;
     }
     return true;
+}
+
+void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
+    auto separator = bigSeparator ? "\n--------------------------" : "---";
+#ifdef qDebug
+    if (debugOnly) {
+        qDebug() << "Step: " << stepName.c_str();
+        qDebug() << "Triangle sides: (" << a << ';' << b << ';' << c << ')';
+        qDebug() << "Triangle angles: (" << alpha << ';' << beta << ';'
+                 << gamma << ')';
+        qDebug() << "S=" << square << "; r=" << inscribedCircleRadius
+                 << "; R=" << circumscribedCircleRadius;
+        qDebug() << (isValidTriangle() ? "It can exist" : "It can't exist");
+        qDebug() << separator;
+    } else {
+        qInfo() << "Step: " << stepName.c_str();
+        qInfo() << "Triangle sides: (" << a << ';' << b << ';' << c << ')';
+        qInfo() << "Triangle angles: (" << alpha << ';' << beta << ';' << gamma
+                << ')';
+        qInfo() << "S=" << square << "; r=" << inscribedCircleRadius
+                << "; R=" << circumscribedCircleRadius;
+        qInfo() << (isValidTriangle() ? "It can exist" : "It can't exist");
+        qInfo() << separator;
+    }
+#else
+    if (not debugOnly) {
+        std::cout << "Step: " << stepName << std::endl;
+        std::cout << "Triangle sides: (" << a << ';' << b << ';' << c << ')'
+                  << std::endl;
+        std::cout << "Triangle angles: (" << alpha << ';' << beta << ';'
+                  << gamma << ')' << std::endl;
+        std::cout << "S=" << square << "; r=" << inscribedCircleRadius
+                  << "; R=" << circumscribedCircleRadius << std::endl;
+        std::cout << (isValidTriangle() ? "It can exist" : "It can't exist")
+                  << std::endl;
+        std::cout << separator << std::endl;
+    }
+#endif
 }

@@ -1,16 +1,17 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include "BaseFigure.hpp"
 #include <QDebug>
 #include <QList>
 #include <QMap>
 #include <QPoint>
 #include <QSize>
 #include <QString>
+#include <QTextStream>
 #include <algorithm>
 #include <iostream>
-
-#include "BaseFigure.hpp"
+#include <ostream>
 
 class Triangle : private BaseFigure {
   public:
@@ -39,6 +40,9 @@ class Triangle : private BaseFigure {
     bool isValidFronts();
     bool isValidRectangularTriangle();
     void roundFields();
+
+    void print(std::string stepName = "", bool bigSeparator = false,
+               bool debugOnly = true);
 
     QMap<int, double> anglesAsMap();
     QMap<int, double> frontsAsMap();
