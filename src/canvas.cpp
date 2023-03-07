@@ -118,6 +118,9 @@ void Canvas::drawTriangle() {
 
     QPolygon trianglePoints = getTriangleGeometry(size(), current_triangle);
     painter.drawLines(getTriangleShape(size(), current_triangle));
+    painter.drawEllipse(trianglePoints[0], 2, 2);
+    painter.drawEllipse(trianglePoints[1], 2, 2);
+    painter.drawEllipse(trianglePoints[2], 2, 2);
 
     pen.setColor(QPalette().color(QPalette::WindowText));
     painter.setPen(pen);
