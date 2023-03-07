@@ -1,75 +1,68 @@
 #include "canvas.hpp"
 
-Canvas::Canvas(QWidget *parent) : QWidget(parent)
-{
+Canvas::Canvas(QWidget *parent) : QWidget(parent) {
     this->setMinimumWidth(250);
     this->setMinimumHeight(100);
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
-QRectF Canvas::posAtCenter(QRectF rect)
-{
-    return QRectF(
-                this->size().width()/2 - rect.width()/2,
-                this->size().height()/2 - rect.height()/2,
-                rect.width(),
-                rect.height()
-    );
+QRectF Canvas::posAtCenter(QRectF rect) {
+    return QRectF(this->size().width() / 2 - rect.width() / 2,
+                  this->size().height() / 2 - rect.height() / 2, rect.width(),
+                  rect.height());
 }
 
-void Canvas::paintEvent(QPaintEvent *)
-{
-    if(currentFigure == FType::FTriangle)
-    {
+void Canvas::paintEvent(QPaintEvent *) {
+    if (currentFigure == FType::FTriangle) {
         drawTriangle();
-    }
-    else
-    {
+    } else {
         drawEmpty();
     }
 }
 
-void Canvas::setCurrentFigure(Triangle t)
-{
+void Canvas::setCurrentFigure(Triangle t) {
     this->current_triangle = t;
     currentFigure = FTriangle;
     update();
 }
 
-QPoint Canvas::rotatePoint(QPoint origin, double angle, QPoint point)
-{
+QPoint Canvas::rotatePoint(QPoint origin, double angle, QPoint point) {
     double s = std::sin(toRadians(angle));
     double c = std::cos(toRadians(angle));
 
-    point.setX(point.x()-origin.x());
-    point.setY(point.y()-origin.y());
+    point.setX(point.x() - origin.x());
+    point.setY(point.y() - origin.y());
 
-    double xnew = point.x()*c-point.y()*s;
-    double ynew = point.x()*s+point.y()*c;
+    double xnew = point.x() * c - point.y() * s;
+    double ynew = point.x() * s + point.y() * c;
 
-    point.setX(round(xnew+origin.x()));
-    point.setY(round(ynew+origin.y()));
+    point.setX(round(xnew + origin.x()));
+    point.setY(round(ynew + origin.y()));
     return point;
 }
 
-QPolygon Canvas::getTriangleGeometry(QSize canvasSize, Triangle triangle, double scale)
-{
+QPolygon Canvas::getTriangleGeometry(QSize canvasSize, Triangle triangle,
+                                     double scale) {
     using std::min, std::max;
-    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin, marginBottom;
+    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin,
+        marginBottom;
     QPoint firstPoint, secondPoint, thirdPoint, forthPoint;
 
     // calculate scaleFactor and margins
-    maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
+    maxLineLength = min(canvasSize.width(), canvasSize.height()) * scale;
     maxSideLength = max(triangle.a, max(triangle.b, triangle.c));
-    scaleFactor = maxLineLength/maxSideLength;
-    aFrontMargin = (canvasSize.width() - triangle.a*scaleFactor)/2;
-    marginBottom = canvasSize.height()*0.65; // get 66 percents as the margin bottom
+    scaleFactor = maxLineLength / maxSideLength;
+    aFrontMargin = (canvasSize.width() - triangle.a * scaleFactor) / 2;
+    marginBottom =
+        canvasSize.height() * 0.65; // get 66 percents as the margin bottom
 
     // place 3 points
     firstPoint = QPoint(aFrontMargin, marginBottom);
-    secondPoint = QPoint(aFrontMargin + triangle.a*scaleFactor, marginBottom);
-    thirdPoint = QPoint(secondPoint.x() - triangle.b*scaleFactor, marginBottom);
-    forthPoint = QPoint(aFrontMargin + triangle.c*scaleFactor, marginBottom);
+    secondPoint =
+        QPoint(aFrontMargin + triangle.a * scaleFactor, marginBottom);
+    thirdPoint =
+        QPoint(secondPoint.x() - triangle.b * scaleFactor, marginBottom);
+    forthPoint = QPoint(aFrontMargin + triangle.c * scaleFactor, marginBottom);
 
     // rotate B side
     thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
@@ -78,24 +71,29 @@ QPolygon Canvas::getTriangleGeometry(QSize canvasSize, Triangle triangle, double
     return QPolygon({firstPoint, secondPoint, thirdPoint, forthPoint});
 }
 
-QList<QLine> Canvas::getTriangleShape(QSize canvasSize, Triangle triangle, double scale)
-{
+QList<QLine> Canvas::getTriangleShape(QSize canvasSize, Triangle triangle,
+                                      double scale) {
     using std::min, std::max;
-    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin, marginBottom;
+    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin,
+        marginBottom;
     QPoint firstPoint, secondPoint, thirdPoint, forthPoint;
 
     // calculate scaleFactor and margins
-    maxLineLength = min(canvasSize.width(), canvasSize.height())*scale;
+    maxLineLength = min(canvasSize.width(), canvasSize.height()) * scale;
     maxSideLength = max(triangle.a, max(triangle.b, triangle.c));
-    scaleFactor = maxLineLength/maxSideLength;
-    aFrontMargin = round((canvasSize.width() - triangle.a*scaleFactor)/2);
-    marginBottom = round(canvasSize.height()*0.65); // get 66 percents as the margin bottom
+    scaleFactor = maxLineLength / maxSideLength;
+    aFrontMargin = round((canvasSize.width() - triangle.a * scaleFactor) / 2);
+    marginBottom = round(canvasSize.height() *
+                         0.65); // get 66 percents as the margin bottom
 
     // place 3 points
     firstPoint = QPoint(aFrontMargin, marginBottom);
-    secondPoint = QPoint(round(aFrontMargin + triangle.a*scaleFactor), marginBottom);
-    thirdPoint = QPoint(round(secondPoint.x() - triangle.b*scaleFactor), marginBottom);
-    forthPoint = QPoint(round(aFrontMargin + triangle.c*scaleFactor), marginBottom);
+    secondPoint =
+        QPoint(round(aFrontMargin + triangle.a * scaleFactor), marginBottom);
+    thirdPoint = QPoint(round(secondPoint.x() - triangle.b * scaleFactor),
+                        marginBottom);
+    forthPoint =
+        QPoint(round(aFrontMargin + triangle.c * scaleFactor), marginBottom);
 
     // rotate B side
     thirdPoint = rotatePoint(secondPoint, triangle.gamma, thirdPoint);
@@ -106,18 +104,16 @@ QList<QLine> Canvas::getTriangleShape(QSize canvasSize, Triangle triangle, doubl
                          QLine(firstPoint, forthPoint)});
 }
 
-int Canvas::distance(QPoint p1, QPoint p2)
-{
+int Canvas::distance(QPoint p1, QPoint p2) {
     using std::sqrt, std::pow;
-    return round(sqrt(pow(p2.x()-p1.x(), 2) + pow(p2.y()-p1.y(), 2)));
+    return round(sqrt(pow(p2.x() - p1.x(), 2) + pow(p2.y() - p1.y(), 2)));
 }
 
-void Canvas::drawTriangle()
-{
+void Canvas::drawTriangle() {
     QPainter painter(this);
     QPen pen = QPen(QPalette().color(QPalette::Highlight), 3);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setFont(QFont("Droid Sans", 14, 400, false));
+    painter.setFont(QFont("Droid Sans", 15, 600, false));
     painter.setPen(pen);
 
     QPolygon trianglePoints = getTriangleGeometry(size(), current_triangle);
@@ -126,40 +122,66 @@ void Canvas::drawTriangle()
     pen.setColor(QPalette().color(QPalette::WindowText));
     painter.setPen(pen);
 
-    int captionYPosition = trianglePoints[2].y()/2;
+    int captionYPosition =
+        trianglePoints[2].y() -
+        size().width() * 0.10; // get 10 percents of canvas size for margin
+                               // from the third triangle point
     QRect titlePosition = rect();
     titlePosition.setY(captionYPosition);
-    painter.drawText(titlePosition, Qt::AlignHCenter, "Треугольник");
+    painter.drawText(titlePosition, Qt::AlignHCenter,
+                     getTriangleTypeName(current_triangle));
 
     QString squarePropertyCaption;
-    if(current_triangle.isValidTriangle())
-    {
-        squarePropertyCaption = QString("S = %1").arg(current_triangle.square);
+    if (current_triangle.isValidTriangle() && current_triangle.square != 0) {
+        QString squareCaptionTemplate = size().height() > 250
+                                            ? "S = %1\nr = %2\nR = %3"
+                                            : "S = %1; r = %2; R = %3";
+        squarePropertyCaption =
+            QString(squareCaptionTemplate)
+                .arg(current_triangle.square)
+                .arg(current_triangle.inscribedCircleRadius)
+                .arg(current_triangle.circumscribedCircleRadius);
     } else {
         squarePropertyCaption = "Некорректный треугольник.";
     }
-    painter.drawText(
-                QRectF(titlePosition.x(),
-                       trianglePoints[0].y() + 15,
-                       titlePosition.width(),
-                       titlePosition.height()),
-                Qt::AlignHCenter,
-                squarePropertyCaption
-    );
+    painter.drawText(QRectF(titlePosition.x(), trianglePoints[0].y() + 15,
+                            titlePosition.width(), titlePosition.height()),
+                     Qt::AlignHCenter, squarePropertyCaption);
 }
 
-void Canvas::setCurrentFigureToEmpty()
-{
+void Canvas::setCurrentFigureToEmpty() {
     this->currentFigure = FType::noData;
     update();
 }
 
-void Canvas::drawEmpty()
-{
+void Canvas::drawEmpty() {
     QPainter painter(this);
     QPen pen = QPen(QPalette().color(QPalette::Text), 3);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setFont(QFont("Droid Sans", 14, 10, false));
     painter.setPen(pen);
-    painter.drawText(rect(), Qt::AlignCenter, "Не хватает данных\nдля отображения");
+    painter.drawText(rect(), Qt::AlignCenter,
+                     "Не хватает данных\nдля отображения");
+}
+
+QString Canvas::getTriangleTypeName(Triangle triangle) {
+    const QString arbitrary = "произвольный", isoscales = "равнобедренный",
+                  equileterial = "равносторонний",
+                  rectangular = "прямоугольный", basename = "треугольник";
+    QString result;
+    if (triangle.isRectangular()) {
+        result += rectangular + " ";
+    }
+    if (triangle.isRectangular() != (size().width() < 500)) {
+        if (triangle.isEquilateral()) {
+            result += equileterial + " ";
+        } else if (triangle.isIsosceles()) {
+            result += isoscales + " ";
+        } else {
+            result += arbitrary + " ";
+        }
+    }
+    result += basename;
+    result[0] = result[0].toUpper();
+    return result;
 }
