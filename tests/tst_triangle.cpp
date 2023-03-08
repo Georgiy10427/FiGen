@@ -108,25 +108,25 @@ void test_triangle::test_2fronts_triangle() {
         Triangle({{0, 89}, {2, 85}}, {{0, 68.07}, {1, 49.55}, {2, 62.38}}, 2)
             .frontsAsMap()
             .values(),
-        QList<double>({89, 73.01, 85}));
+        QList<double>({89, 73.0, 85}));
     // fronts: (3), 4, 5
     // angles: 37, 53, 90
     QCOMPARE(Triangle({{1, 4}, {2, 5}}, {{0, 37}, {1, 53}, {2, 90}})
                  .frontsAsMap()
                  .values(),
              QList<double>({3, 4, 5}));
-    // fronts: 8, 9, (10)
+    // fronts: 80, 90, (10)
     // angles: 49, 59, 72
-    QCOMPARE(Triangle({{0, 80}, {1, 90}}, {{0, 49}, {1, 59}, {2, 72}})
+    QCOMPARE(Triangle({{0, 80}, {1, 90}}, {{0, 49.5}, {1, 58.8}, {2, 71.7}})
                  .frontsAsMap()
                  .values(),
-             QList<double>({80, 90, 100}));
+             QList<double>({80, 90, 99.9}));
     // fronts: (73), 80, 82
     // angles: 53.6, 61.8, 64.6
     QCOMPARE(Triangle({{1, 80}, {2, 82}}, {{0, 53.6}, {1, 61.8}, {2, 64.6}}, 2)
                  .frontsAsMap()
                  .values(),
-             QList<double>({73.06, 80, 82}));
+             QList<double>({73.1, 80, 82}));
 
     // fronts: 93, 67, (89)
     // angles: 72, (43), 65
@@ -141,14 +141,14 @@ void test_triangle::test_2fronts_triangle() {
 
     // fronts: 435, 500, 378
     // angles: 57, (76), 47
-    QCOMPARE(Triangle({{1, 500}, {2, 378}}, {{0, 57}, {2, 47}})
+    QCOMPARE(Triangle({{1, 500}, {2, 378}}, {{0, 56.93}, {2, 47.16}})
                  .frontsAsMap()
                  .values(),
              QList<double>({432, 500, 378}));
-    QCOMPARE(Triangle({{1, 500}, {2, 378}}, {{0, 57}, {2, 47}})
+    QCOMPARE(Triangle({{1, 500}, {2, 378}}, {{0, 56.93}, {2, 47.16}})
                  .anglesAsMap()
                  .values(),
-             QList<double>({57, 76, 47}));
+             QList<double>({56.93, 75.91, 47.16}));
 
     // fronts: 19, (15), 13
     // angles: 85, 52, 43

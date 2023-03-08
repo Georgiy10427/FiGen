@@ -2,6 +2,8 @@
 #define BASEFIGURE_H
 
 #include <QDebug>
+#include <cerrno>
+#include <cfenv>
 #include <cmath>
 
 class BaseFigure {

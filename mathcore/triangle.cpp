@@ -165,7 +165,7 @@ bool Triangle::isEquilateralByFronts() { return (a == b) && (a == c); }
 
 bool Triangle::isEquilaterialByAngles() {
     /* Returns true, if the triangle has angles equals 60 degrees. */
-    return (alpha == beta) && (alpha == gamma) && alpha == 60;
+    return (alpha == beta) and (alpha == gamma) and alpha == 60;
 }
 
 bool Triangle::isEquilateral() {
@@ -405,6 +405,9 @@ void Triangle::roundFields() {
     bool wasValid = isValidTriangle();
     bool wasRectangular = isValidRectangularTriangle();
 
+    if (not isValidAngles())
+        return;
+
     auto rounding = [this](int frontsPrecision, int anglesPrecision) {
         kRound(&a, frontsPrecision);
         kRound(&b, frontsPrecision);
@@ -416,14 +419,14 @@ void Triangle::roundFields() {
     rounding(fronts_precision, angles_precision);
 
     if (not isValidRectangularTriangle() && wasRectangular) {
-        for (int d = 1; d < kmaxDecimal && !isValidRectangularTriangle();
+        for (int d = 0; d < kmaxDecimal && !isValidRectangularTriangle();
              ++d) {
             unpackFromMap(decimalFronts, decimalAngles);
             rounding(d, d);
         }
     }
     if (not isValidTriangle() && wasValid) {
-        for (int d = 1; d < kmaxDecimal && !isValidTriangle(); ++d) {
+        for (int d = 0; d < kmaxDecimal && !isValidTriangle(); ++d) {
             unpackFromMap(decimalFronts, decimalAngles);
             rounding(d, d);
         }
@@ -454,60 +457,26 @@ QPoint Triangle::rotatePoint(QPoint origin, double angle, QPoint point) {
 }
 
 bool Triangle::isValidTriangle() {
-    /* Return true, if the triangle can exist. It was implemented by grathics
-     * method.*/
-    using std::max;
-    using std::min;
-
     if (not isValidFronts())
         return false;
-    if (isIsoscelesByFronts() != isIsoscelesByAngles())
+    if (not a || not b || not c || not alpha || not beta || not gamma)
         return false;
-    if (isEquilateralByFronts() != isEquilaterialByAngles())
+    if (not isValidAngles())
         return false;
-
-    double maxLineLength, maxSideLength, scaleFactor, aFrontMargin,
-        marginBottom;
-    double scale = 1;
-    QPoint firstPoint, secondPoint, thirdPoint, forthPoint;
-    QSize canvasSize(300, 400);
-
-    // calculate scaleFactor and margins
-    maxLineLength = min(canvasSize.width(), canvasSize.height()) * scale;
-    maxSideLength = max(a, max(b, c));
-    scaleFactor = maxLineLength / maxSideLength;
-    aFrontMargin = round((canvasSize.width() - a * scaleFactor) / 2);
-    marginBottom = round(canvasSize.height() *
-                         0.65); // get 65 percents as the margin bottom
-
-    // place 3 points
-    firstPoint = QPoint(aFrontMargin, marginBottom);
-    secondPoint = QPoint(round(aFrontMargin + a * scaleFactor), marginBottom);
-    thirdPoint =
-        QPoint(round(secondPoint.x() - b * scaleFactor), marginBottom);
-    forthPoint = QPoint(round(aFrontMargin + c * scaleFactor), marginBottom);
-
-    // rotate B side
-    thirdPoint = rotatePoint(secondPoint, gamma, thirdPoint);
-    forthPoint = rotatePoint(firstPoint, -beta, forthPoint);
-
-    if (abs(thirdPoint.x() - forthPoint.x()) > checkAccuracy) {
-        return false;
-    }
-    if (abs(thirdPoint.y() - forthPoint.y()) > checkAccuracy) {
-        return false;
-    }
-    if (abs(forthPoint.x() - forthPoint.x()) > checkAccuracy) {
-        return false;
-    }
-    if (abs(forthPoint.y() - forthPoint.y()) > checkAccuracy) {
+    if (isRectangular() != isValidRectangularTriangle())
+        return 0;
+    if (isEquilateralByFronts() != isEquilaterialByAngles()) {
         return false;
     }
 
-    if (round(alpha) != round(180 - (beta + gamma))) {
-        return false;
+    double Avalue = a / sin(toRadians(alpha));
+    double Bvalue = b / sin(toRadians(beta));
+    double Cvalue = c / sin(toRadians(gamma));
+
+    if (round(Avalue) == round(Bvalue) && round(Avalue) == round(Cvalue)) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {

@@ -1,8 +1,6 @@
 #include "window.hpp"
 
-Window::Window(QWidget *parent)
-    : QWidget(parent)
-{
+Window::Window(QWidget *parent) : QWidget(parent) {
     this->setMinimumWidth(800);
     this->setMinimumHeight(200);
     setupIcon();
@@ -47,19 +45,19 @@ Window::Window(QWidget *parent)
     layout->addWidget(canvas_);
     layout->addWidget(sidebar);
 
-    connect(flushTableShortcut, &QShortcut::activated, ngonfigure, &NGonFigure::resetData);
-    connect(calcFigureShortcut, &QShortcut::activated, ngonfigure, &NGonFigure::calcNgon);
-    connect(clearTableBtn, &QPushButton::clicked, ngonfigure, &NGonFigure::resetData);
-    connect(countBtn, &QPushButton::clicked, ngonfigure, &NGonFigure::calcNgon);
+    connect(flushTableShortcut, &QShortcut::activated, ngonfigure,
+            &NGonFigure::resetData);
+    connect(calcFigureShortcut, &QShortcut::activated, ngonfigure,
+            &NGonFigure::calcNgon);
+    connect(clearTableBtn, &QPushButton::clicked, ngonfigure,
+            &NGonFigure::resetData);
+    connect(countBtn, &QPushButton::clicked, ngonfigure,
+            &NGonFigure::calcNgon);
 }
 
-void Window::setupIcon()
-{
+void Window::setupIcon() {
     this->setWindowIcon(QIcon("://icon64"));
     this->setWindowTitle("FiGen");
 }
 
-Window::~Window()
-{
-}
-
+Window::~Window() {}

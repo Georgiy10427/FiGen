@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <ostream>
+#include <random>
 
 class Triangle : private BaseFigure {
   public:
@@ -41,6 +42,10 @@ class Triangle : private BaseFigure {
     bool isValidRectangularTriangle();
     void roundFields();
 
+    // generator
+    void generate(double minSide, double maxSide, bool isRectangular = false,
+                  bool isIsoscales = false, bool isEquileterial = false);
+
     void print(std::string stepName = "", bool bigSeparator = false,
                bool debugOnly = true);
 
@@ -51,7 +56,7 @@ class Triangle : private BaseFigure {
     double alpha, beta, gamma;
     double square;
     double circumscribedCircleRadius, inscribedCircleRadius;
-    int fronts_precision = 0, angles_precision = 0, checkAccuracy = 3;
+    int fronts_precision = 0, angles_precision = 0, checkAccuracy = 4;
 
   private:
     void unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles);
