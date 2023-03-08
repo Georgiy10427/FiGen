@@ -1,26 +1,27 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QWidget>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QTabWidget>
-#include <QShortcut>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QPushButton>
-#include <QSlider>
 #include <QResource>
+#include <QShortcut>
+#include <QSlider>
+#include <QTabWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include "NGonFigure.hpp"
 #include "canvas.hpp"
 
-class Window : public QWidget
-{
-public:
+class Window : public QWidget {
+  public:
     Window(QWidget *parent = nullptr);
     ~Window();
-private:
+
+  private:
     void setupIcon();
+    void deleteTablePart();
     QTableWidget *table;
     NGonFigure *ngonfigure;
     Canvas *canvas_;

@@ -41,6 +41,8 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     flushTableShortcut->setKey(Qt::CTRL | Qt::Key_D);
     QShortcut *calcFigureShortcut = new QShortcut(this);
     calcFigureShortcut->setKey(Qt::CTRL | Qt::Key_C);
+    QShortcut *deleteTablePart = new QShortcut(this);
+    deleteTablePart->setKey(Qt::Key_Delete);
 
     layout->addWidget(canvas_);
     layout->addWidget(sidebar);
@@ -49,6 +51,8 @@ Window::Window(QWidget *parent) : QWidget(parent) {
             &NGonFigure::resetData);
     connect(calcFigureShortcut, &QShortcut::activated, ngonfigure,
             &NGonFigure::calcNgon);
+    connect(deleteTablePart, &QShortcut::activated, this,
+            &Window::deleteTablePart);
     connect(clearTableBtn, &QPushButton::clicked, ngonfigure,
             &NGonFigure::resetData);
     connect(countBtn, &QPushButton::clicked, ngonfigure,
@@ -58,6 +62,12 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 void Window::setupIcon() {
     this->setWindowIcon(QIcon("://icon64"));
     this->setWindowTitle("FiGen");
+}
+
+void Window::deleteTablePart() {
+    for (auto item : table->selectedItems()) {
+        item->setText("");
+    }
 }
 
 Window::~Window() {}
