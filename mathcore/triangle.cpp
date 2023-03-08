@@ -480,10 +480,11 @@ bool Triangle::isValidTriangle() {
 }
 
 void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
+    return;
     auto separator = bigSeparator ? "\n--------------------------" : "---";
 #ifdef qDebug
     if (debugOnly) {
-        qDebug() << "Step: " << stepName.c_str();
+        qDebug() << "Step: " << stepName;
         qDebug() << "Triangle sides: (" << a << ';' << b << ';' << c << ')';
         qDebug() << "Triangle angles: (" << alpha << ';' << beta << ';'
                  << gamma << ')';
@@ -492,7 +493,7 @@ void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
         qDebug() << (isValidTriangle() ? "It can exist" : "It can't exist");
         qDebug() << separator;
     } else {
-        qInfo() << "Step: " << stepName.c_str();
+        qInfo() << "Step: " << stepName;
         qInfo() << "Triangle sides: (" << a << ';' << b << ';' << c << ')';
         qInfo() << "Triangle angles: (" << alpha << ';' << beta << ';' << gamma
                 << ')';
@@ -503,7 +504,7 @@ void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
     }
 #else
     if (not debugOnly) {
-        std::cout << "Step: " << stepName << std::endl;
+        std::cout << "Step: " << stepName.c_str() << std::endl;
         std::cout << "Triangle sides: (" << a << ';' << b << ';' << c << ')'
                   << std::endl;
         std::cout << "Triangle angles: (" << alpha << ';' << beta << ';'

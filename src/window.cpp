@@ -1,41 +1,97 @@
 #include "window.hpp"
 
 Window::Window(QWidget *parent) : QWidget(parent) {
-    this->setMinimumWidth(800);
-    this->setMinimumHeight(200);
+    this->setMinimumWidth(950);
+    this->setMinimumHeight(515);
     setupIcon();
 
-    QHBoxLayout *layout = new QHBoxLayout();
+    auto *layout = new QHBoxLayout();
     this->setLayout(layout);
 
     this->table = new QTableWidget(this);
-    this->canvas_ = new Canvas(this);
-    this->ngonfigure = new NGonFigure(table, canvas_, this);
+    this->canvas = new Canvas(this);
+    this->ngonfigure = new NGonFigure(table, canvas, this);
 
-    QTabWidget *sidebar = new QTabWidget(this);
+    auto *sidebar = new QTabWidget(this);
 
-    QPushButton *clearTableBtn = new QPushButton("Очистить таблицу");
-    QPushButton *randGenBtn = new QPushButton("Сгенерировать");
-    QPushButton *countBtn = new QPushButton("Расчитать");
-    QHBoxLayout *pbuttons_layout = new QHBoxLayout();
+    // setup buttons with actions 'Calculate', 'Generate', 'Clear table'
+    auto *actionsGroup = new QGroupBox("Быстрые действия");
+    auto *pbuttons_layout = new QHBoxLayout();
     pbuttons_layout->setSpacing(10);
+    auto *clearTableBtn = new QPushButton("Очистить таблицу");
+    auto *randGenBtn = new QPushButton("Сгенерировать");
+    auto *countBtn = new QPushButton("Расчитать");
     pbuttons_layout->addWidget(countBtn);
     pbuttons_layout->addWidget(randGenBtn);
     pbuttons_layout->addWidget(clearTableBtn);
+    auto *actionsPanelLayout = new QHBoxLayout();
+    actionsPanelLayout->addItem(pbuttons_layout);
+    actionsGroup->setLayout(actionsPanelLayout);
 
-    QHBoxLayout *toolsPanelLayout = new QHBoxLayout();
-    toolsPanelLayout->addItem(pbuttons_layout);
+    // setup panel with generation params
+    QGroupBox *generationParamsGroup = new QGroupBox("Параметры генерации");
 
-    QWidget *tab1 = new QWidget();
-    QVBoxLayout *tab1Layout = new QVBoxLayout();
+    auto *rangeParamsLayout = new QVBoxLayout();
+    auto *minBorderLabel = new QLabel("Минимальное значение (включительно):");
+    auto *maxBorderLabel = new QLabel("Максимальное значение (включительно):");
+    this->minRandSpinbox = new QDoubleSpinBox();
+    this->maxRandSpinbox = new QDoubleSpinBox();
+    auto *intGenerationCheckboxLabel =
+        new QLabel("Стороны треугольника в целых числах");
+    this->intRandGeneration = new QCheckBox();
+
+    auto *minBorderBox = new QHBoxLayout();
+    auto *maxBorderBox = new QHBoxLayout();
+    auto *intGenerationBox = new QHBoxLayout();
+
+    minRandSpinbox->setRange(1.0, 4900);
+    maxRandSpinbox->setRange(2, 5000);
+
+    minBorderBox->addWidget(minBorderLabel);
+    minBorderBox->addWidget(minRandSpinbox);
+    minBorderBox->setSpacing(10);
+
+    maxBorderBox->addWidget(maxBorderLabel);
+    maxBorderBox->addWidget(maxRandSpinbox);
+    maxBorderBox->setSpacing(10);
+
+    intGenerationBox->addWidget(intGenerationCheckboxLabel);
+    intGenerationBox->addWidget(intRandGeneration);
+    intGenerationBox->setSpacing(31);
+
+    rangeParamsLayout->addItem(minBorderBox);
+    rangeParamsLayout->addItem(maxBorderBox);
+    rangeParamsLayout->addItem(intGenerationBox);
+    rangeParamsLayout->setSpacing(5);
+
+    // setup group with triangle properties
+    auto propertiesGroupbox = new QGroupBox("Свойства треугольника");
+    this->isEquileterialChk = new QCheckBox("Равносторонний");
+    this->isIsoscalesChk = new QCheckBox("Равнобедренный");
+    this->isRectangularChk = new QCheckBox("Прямоугольный");
+
+    auto propertiesLayout = new QVBoxLayout();
+    propertiesLayout->addWidget(isEquileterialChk);
+    propertiesLayout->addWidget(isIsoscalesChk);
+    propertiesLayout->addWidget(isRectangularChk);
+    propertiesLayout->setSpacing(10);
+    propertiesGroupbox->setLayout(propertiesLayout);
+
+    auto *paramsLayout = new QHBoxLayout();
+    paramsLayout->addItem(rangeParamsLayout);
+    paramsLayout->addWidget(propertiesGroupbox);
+    paramsLayout->setSpacing(15);
+    generationParamsGroup->setLayout(paramsLayout);
+
+    auto *tab1 = new QWidget();
+    auto *tab1Layout = new QVBoxLayout();
     tab1->setLayout(tab1Layout);
+    tab1Layout->addWidget(generationParamsGroup);
     tab1Layout->addWidget(table);
-    QGroupBox *tools = new QGroupBox("Быстрые действия");
-    tools->setLayout(toolsPanelLayout);
-    tab1Layout->addWidget(tools);
+    tab1Layout->addWidget(actionsGroup);
     tab1->setLayout(tab1Layout);
 
-    sidebar->insertTab(0, tab1, "Многоугольники");
+    sidebar->insertTab(0, tab1, "Треугольники");
 
     QShortcut *flushTableShortcut = new QShortcut(this);
     flushTableShortcut->setKey(Qt::CTRL | Qt::Key_D);
@@ -44,7 +100,7 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     QShortcut *deleteTablePart = new QShortcut(this);
     deleteTablePart->setKey(Qt::Key_Delete);
 
-    layout->addWidget(canvas_);
+    layout->addWidget(canvas);
     layout->addWidget(sidebar);
 
     connect(flushTableShortcut, &QShortcut::activated, ngonfigure,
@@ -52,11 +108,24 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     connect(calcFigureShortcut, &QShortcut::activated, ngonfigure,
             &NGonFigure::calcNgon);
     connect(deleteTablePart, &QShortcut::activated, this,
-            &Window::deleteTablePart);
+            &Window::deleteSelectedCells);
+
     connect(clearTableBtn, &QPushButton::clicked, ngonfigure,
             &NGonFigure::resetData);
     connect(countBtn, &QPushButton::clicked, ngonfigure,
             &NGonFigure::calcNgon);
+
+    connect(minRandSpinbox, &QDoubleSpinBox::valueChanged, this,
+            &Window::validateRandGenerationRange);
+    connect(maxRandSpinbox, &QDoubleSpinBox::valueChanged, this,
+            &Window::validateRandGenerationRange);
+
+    connect(isEquileterialChk, &QCheckBox::stateChanged, this,
+            &Window::validateRandGenerationProperties);
+    connect(isIsoscalesChk, &QCheckBox::stateChanged, this,
+            &Window::validateRandGenerationProperties);
+    connect(isRectangularChk, &QCheckBox::stateChanged, this,
+            &Window::validateRandGenerationProperties);
 }
 
 void Window::setupIcon() {
@@ -64,9 +133,25 @@ void Window::setupIcon() {
     this->setWindowTitle("FiGen");
 }
 
-void Window::deleteTablePart() {
+void Window::deleteSelectedCells() {
     for (auto item : table->selectedItems()) {
         item->setText("");
+    }
+}
+
+void Window::validateRandGenerationRange(double value) {
+    if (minRandSpinbox->value() >= maxRandSpinbox->value()) {
+        maxRandSpinbox->setValue(minRandSpinbox->value() + 2);
+    }
+}
+
+void Window::validateRandGenerationProperties(int state) {
+    if (isRectangularChk->isChecked() == isEquileterialChk->isChecked()) {
+        isRectangularChk->setChecked(Qt::Unchecked);
+        isEquileterialChk->setChecked(Qt::Unchecked);
+    }
+    if (isEquileterialChk->isChecked() and isIsoscalesChk->isChecked()) {
+        isIsoscalesChk->setChecked(Qt::Unchecked);
     }
 }
 

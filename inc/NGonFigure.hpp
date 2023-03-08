@@ -1,25 +1,25 @@
 #ifndef NGONFIGURE_HPP
 #define NGONFIGURE_HPP
 
+#include "canvas.hpp"
+#include <QFrame>
+#include <QHeaderView>
 #include <QTableWidget>
 #include <QTableWidgetItem>
-#include <QHeaderView>
-#include <QFrame>
-#include "canvas.hpp"
 #include <triangle.hpp>
 
-class NGonFigure : public QObject, BaseFigure
-{
-public:
+class NGonFigure : public QObject, BaseFigure {
+  public:
     NGonFigure(QTableWidget *table, Canvas *canvas, QObject *parent = nullptr);
     void setTable(QTableWidget *table);
-public slots:
+  public slots:
     void tableCellChanged(QTableWidgetItem *item);
     void resetData();
     void calcNgon();
-private:
+
+  private:
     void setupTableAppearence();
-    QStringList generateEnglishAlphabet(bool upper_case=true);
+    QStringList generateEnglishAlphabet(bool upper_case = true);
     QMap<int, double> getRowItems(int row);
     void updateProperties();
     void updatePropertiesInTable();
@@ -27,10 +27,11 @@ private:
     void alignItemTextAtCenter(QTableWidgetItem *item);
     void updateAnglesFunctions();
     void drawNgonSuggestion();
-    void setRowItems(int row, QMap<int, double> items);
+    void setRowItems(int row, QMap<int, double> items,
+                     bool rewriteEmpty = false);
 
     const int minColumnQuantity = 3;
-    const int maxColumnQuantity = 5;
+    const int maxColumnQuantity = 3;
     QTableWidget *table = nullptr;
 
     QMap<int, double> angles;

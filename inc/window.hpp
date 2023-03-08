@@ -1,12 +1,14 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <QCheckBox>
+#include <QDoubleSpinBox>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QResource>
 #include <QShortcut>
-#include <QSlider>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -21,9 +23,17 @@ class Window : public QWidget {
 
   private:
     void setupIcon();
-    void deleteTablePart();
     QTableWidget *table;
     NGonFigure *ngonfigure;
-    Canvas *canvas_;
+    Canvas *canvas;
+    QCheckBox *intRandGeneration, *isEquileterialChk, *isIsoscalesChk,
+        *isRectangularChk;
+    QDoubleSpinBox *minRandSpinbox, *maxRandSpinbox;
+
+  private slots:
+    void deleteSelectedCells();
+    void validateRandGenerationRange(double value);
+    void validateRandGenerationProperties(int state);
+    void generateTriangle();
 };
 #endif // WINDOW_H

@@ -100,23 +100,24 @@ QMap<int, double> NGonFigure::getRowItems(int row) {
 void NGonFigure::updateProperties() {
     fronts.clear();
     angles.clear();
+    sin_values.clear();
+    cos_values.clear();
+    tan_values.clear();
     fronts = getRowItems(0);
     angles = getRowItems(1);
 }
 
-void NGonFigure::setRowItems(int row, QMap<int, double> items) {
+void NGonFigure::setRowItems(int row, QMap<int, double> items,
+                             bool rewriteEmpty) {
     for (int i = 0; i < table->columnCount(); ++i) {
         QTableWidgetItem *cell = table->item(row, i);
         if (cell == nullptr) {
             continue;
         }
         if (items.contains(i)) {
-            if (items[i] == -1) {
-                // empty value
-                cell->setText("");
-            } else {
-                cell->setText(QString::number(items[i]));
-            }
+            cell->setText(QString::number(items[i]));
+        } else if (rewriteEmpty) {
+            cell->setText("");
         }
     }
 }
@@ -124,9 +125,9 @@ void NGonFigure::setRowItems(int row, QMap<int, double> items) {
 void NGonFigure::updatePropertiesInTable() {
     setRowItems(0, fronts);
     setRowItems(1, angles);
-    setRowItems(2, cos_values);
-    setRowItems(3, sin_values);
-    setRowItems(4, tan_values);
+    setRowItems(2, cos_values, true);
+    setRowItems(3, sin_values, true);
+    setRowItems(4, tan_values, true);
 }
 
 void NGonFigure::updateTableColumnsQuantity() {
@@ -150,16 +151,9 @@ void NGonFigure::updateAnglesFunctions() {
     tan_values.clear();
     for (int i = 0; i < angles.size(); ++i) {
         if (angles.contains(i)) {
-            cos_values.insert(i, round(cos(toRadians(angles[i])) * 10000) /
-                                     10000);
-            sin_values.insert(i, round(sin(toRadians(angles[i])) * 10000) /
-                                     10000);
-            tan_values.insert(i, round(tan(toRadians(angles[i])) * 10000) /
-                                     10000);
-        } else {
-            cos_values.insert(i, -1);
-            sin_values.insert(i, -1);
-            tan_values.insert(i, -1);
+            cos_values.insert(i, kRound(cos(toRadians(angles[i])), 4));
+            sin_values.insert(i, kRound(sin(toRadians(angles[i])), 4));
+            tan_values.insert(i, kRound(tan(toRadians(angles[i])), 4));
         }
     }
 }
@@ -194,6 +188,7 @@ void NGonFigure::calcNgon() {
 void NGonFigure::resetData() {
     angles.clear();
     fronts.clear();
+    updateAnglesFunctions();
     table->clear();
     setupTableAppearence();
     canvas->setCurrentFigureToEmpty();
