@@ -189,7 +189,7 @@ QString Canvas::getTriangleTypeName(Triangle triangle) {
     if (triangle.isRectangular()) {
         result += rectangular + " ";
     }
-    if (triangle.isRectangular() != (size().width() < 500)) {
+    if (not triangle.isRectangular() or !(size().width() < 500)) {
         if (triangle.isEquilateral()) {
             result += equileterial + " ";
         } else if (triangle.isIsosceles()) {
