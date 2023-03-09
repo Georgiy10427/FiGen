@@ -56,7 +56,7 @@ class Triangle : private BaseFigure {
     double alpha, beta, gamma;
     double square;
     double circumscribedCircleRadius, inscribedCircleRadius;
-    int fronts_precision = 0, angles_precision = 0, checkAccuracy = 4;
+    int fronts_precision = 0, angles_precision = 0;
 
   private:
     void unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles);
@@ -79,7 +79,6 @@ class Triangle : private BaseFigure {
     void calculateSquare();
     void calculateCircumscribedCircleRadius();
     void calculateInscribedCircleRadius();
-    QPoint rotatePoint(QPoint origin, double angle, QPoint point);
 };
 
 #endif // TRIANGLE_H

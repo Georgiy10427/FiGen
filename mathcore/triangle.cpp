@@ -441,22 +441,10 @@ void Triangle::calculateProperties() {
     calculateInscribedCircleRadius();
 }
 
-QPoint Triangle::rotatePoint(QPoint origin, double angle, QPoint point) {
-    double s = std::sin(toRadians(angle));
-    double c = std::cos(toRadians(angle));
-
-    point.setX(point.x() - origin.x());
-    point.setY(point.y() - origin.y());
-
-    double xnew = point.x() * c - point.y() * s;
-    double ynew = point.x() * s + point.y() * c;
-
-    point.setX(round(xnew + origin.x()));
-    point.setY(round(ynew + origin.y()));
-    return point;
-}
-
 bool Triangle::isValidTriangle() {
+    /* Returns true, if the triangle can exist.
+     * It was implemeted by the Sine theorem.*/
+
     if (not isValidFronts())
         return false;
     if (not a || not b || not c || not alpha || not beta || not gamma)
