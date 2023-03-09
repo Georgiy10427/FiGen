@@ -43,8 +43,26 @@ void NGonFigure::updateHeaders() {
     table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     table->setHorizontalHeaderLabels(currentVHeaders);
     table->setVerticalHeaderLabels({"Сторона", "Угол", "cos", "sin", "tan"});
-    table->horizontalHeader()->setStyleSheet(
-        "QHeaderView::section { border-bottom: 1px solid gray; }");
+    qDebug() << QSysInfo().productVersion();
+    if ((QSysInfo::productVersion() == "10" ||
+         QSysInfo::productVersion() == "11") &&
+        QSysInfo::productType() == "windows") {
+        table->setStyleSheet("QHeaderView::section{"
+                             "border-top:0px solid #D8D8D8;"
+                             "border-left:0px solid #D8D8D8;"
+                             "border-right:1px solid #D8D8D8;"
+                             "border-bottom: 1px solid #D8D8D8;"
+                             "background-color:white;"
+                             "padding:4px;"
+                             "}"
+                             "QTableCornerButton::section{"
+                             "border-top:0px solid #D8D8D8;"
+                             "border-left:0px solid #D8D8D8;"
+                             "border-right:1px solid #D8D8D8;"
+                             "border-bottom: 1px solid #D8D8D8;"
+                             "background-color:white;"
+                             "}");
+    }
 }
 
 void NGonFigure::setupTableAppearence() {

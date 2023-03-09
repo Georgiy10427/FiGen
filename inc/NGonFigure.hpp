@@ -4,6 +4,7 @@
 #include "canvas.hpp"
 #include <QFrame>
 #include <QHeaderView>
+#include <QSysInfo>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <triangle.hpp>
