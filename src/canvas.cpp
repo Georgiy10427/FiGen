@@ -125,10 +125,24 @@ void Canvas::drawTriangle() {
     pen.setColor(QPalette().color(QPalette::WindowText));
     painter.setPen(pen);
 
-    int captionYPosition =
-        trianglePoints[2].y() -
-        size().width() * 0.10; // get 10 percents of canvas size for margin
-                               // from the third triangle point
+    // drawing points name
+    QPointF captionA = trianglePoints[2], captionB = trianglePoints[0],
+            captionC = trianglePoints[1];
+    captionA.setX(trianglePoints[2].x() - labelsMargin);
+    captionA.setY(trianglePoints[2].y() - labelsMargin);
+
+    captionB.setX(trianglePoints[0].x() - labelsMargin * 3.2);
+    captionB.setY(trianglePoints[0].y() + labelsMargin);
+
+    captionC.setX(trianglePoints[1].x() + labelsMargin);
+    captionC.setY(trianglePoints[1].y() + labelsMargin + labelsMargin / 4);
+
+    painter.drawText(captionA, "A");
+    painter.drawText(captionB, "B");
+    painter.drawText(captionC, "C");
+
+    int captionYPosition = trianglePoints[2].y() - captionMarginBottom;
+
     QRect titlePosition = rect();
     titlePosition.setY(captionYPosition);
     painter.drawText(titlePosition, Qt::AlignHCenter,

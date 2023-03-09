@@ -12,9 +12,13 @@ void NGonFigure::setTable(QTableWidget *table) {
         setupTableAppearence();
         connect(this->table, &QTableWidget::itemChanged, this,
                 &NGonFigure::tableCellChanged);
+        connect(this->table, &QTableWidget::itemSelectionChanged, this,
+                &NGonFigure::updateVHeaders);
     } else {
         disconnect(this->table, &QTableWidget::itemChanged, this,
                    &NGonFigure::tableCellChanged);
+        disconnect(this->table, &QTableWidget::itemSelectionChanged, this,
+                   &NGonFigure::updateVHeaders);
         this->table = table;
         setupTableAppearence();
         connect(this->table, &QTableWidget::itemChanged, this,
@@ -22,46 +26,46 @@ void NGonFigure::setTable(QTableWidget *table) {
     }
 }
 
+void NGonFigure::updateVHeaders() {
+    if (table->selectedItems().size() == 1) {
+        if (table->selectedItems()[0]->row() == frontsRow) {
+            currentVHeaders = frontsLabels;
+        } else if (table->selectedItems()[0]->row() == anglesRow) {
+            currentVHeaders = anglesLabels;
+        }
+    } else {
+        currentVHeaders = frontsLabels;
+    }
+    updateHeaders();
+}
+
+void NGonFigure::updateHeaders() {
+    table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    table->setHorizontalHeaderLabels(currentVHeaders);
+    table->setVerticalHeaderLabels({"Сторона", "Угол", "cos", "sin", "tan"});
+    table->horizontalHeader()->setStyleSheet(
+        "QHeaderView::section { border-bottom: 1px solid gray; }");
+}
+
 void NGonFigure::setupTableAppearence() {
     table->setRowCount(5);
     table->setColumnCount(minColumnQuantity);
     table->clear();
-    table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-    table->setVerticalHeaderLabels({"Сторона", "Угол", "cos", "sin", "tan"});
-    table->setHorizontalHeaderLabels({"AB", "BC", "AC"});
+    updateHeaders();
 
     for (int i = 0; i < table->rowCount(); ++i) {
         for (int j = 0; j < maxColumnQuantity; ++j) {
             QTableWidgetItem *item = new QTableWidgetItem();
             item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-            if (i == 2 || i == 3 || i == 4)
+            if (i == sinValuesRow || i == cosValuesRow || i == tanValuesRow)
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             table->setItem(i, j, item);
         }
     }
 }
 
-QStringList NGonFigure::generateEnglishAlphabet(bool upper_case) {
-    QStringList alphabet;
-    char start, end;
-
-    if (upper_case) {
-        start = 'A';
-        end = 'Z';
-    } else {
-        start = 'a';
-        end = 'z';
-    }
-
-    for (char i = start; i < end; ++i) {
-        alphabet.push_back(QString() + QChar(i));
-    }
-    return alphabet;
-}
-
 void NGonFigure::tableCellChanged(QTableWidgetItem *item) {
     updateProperties();
-    updateTableColumnsQuantity();
     alignItemTextAtCenter(item);
     drawNgonSuggestion();
     updateAnglesFunctions();
@@ -103,8 +107,8 @@ void NGonFigure::updateProperties() {
     sin_values.clear();
     cos_values.clear();
     tan_values.clear();
-    fronts = getRowItems(0);
-    angles = getRowItems(1);
+    fronts = getRowItems(frontsRow);
+    angles = getRowItems(anglesRow);
 }
 
 void NGonFigure::setRowItems(int row, QMap<int, double> items,
@@ -123,22 +127,11 @@ void NGonFigure::setRowItems(int row, QMap<int, double> items,
 }
 
 void NGonFigure::updatePropertiesInTable() {
-    setRowItems(0, fronts);
-    setRowItems(1, angles);
-    setRowItems(2, cos_values, true);
-    setRowItems(3, sin_values, true);
-    setRowItems(4, tan_values, true);
-}
-
-void NGonFigure::updateTableColumnsQuantity() {
-    int currentColumnsQuantity = fronts.size();
-    if (currentColumnsQuantity < minColumnQuantity) {
-        currentColumnsQuantity = minColumnQuantity;
-    } else if (currentColumnsQuantity + 1 <= maxColumnQuantity) {
-        ++currentColumnsQuantity;
-    }
-    table->setColumnCount(currentColumnsQuantity);
-    table->setHorizontalHeaderLabels(generateEnglishAlphabet());
+    setRowItems(frontsRow, fronts);
+    setRowItems(anglesRow, angles);
+    setRowItems(sinValuesRow, cos_values, true);
+    setRowItems(cosValuesRow, sin_values, true);
+    setRowItems(tanValuesRow, tan_values, true);
 }
 
 void NGonFigure::alignItemTextAtCenter(QTableWidgetItem *item) {
@@ -151,9 +144,12 @@ void NGonFigure::updateAnglesFunctions() {
     tan_values.clear();
     for (int i = 0; i < angles.size(); ++i) {
         if (angles.contains(i)) {
-            cos_values.insert(i, kRound(cos(toRadians(angles[i])), 4));
-            sin_values.insert(i, kRound(sin(toRadians(angles[i])), 4));
-            tan_values.insert(i, kRound(tan(toRadians(angles[i])), 4));
+            cos_values.insert(i, kRound(cos(toRadians(angles[i])),
+                                        trigonametryFunctionsDecimal));
+            sin_values.insert(i, kRound(sin(toRadians(angles[i])),
+                                        trigonametryFunctionsDecimal));
+            tan_values.insert(i, kRound(tan(toRadians(angles[i])),
+                                        trigonametryFunctionsDecimal));
         }
     }
 }
@@ -188,8 +184,8 @@ void NGonFigure::calcNgon() {
 void NGonFigure::resetData() {
     angles.clear();
     fronts.clear();
-    updateAnglesFunctions();
     table->clear();
+    updateAnglesFunctions();
     setupTableAppearence();
     canvas->setCurrentFigureToEmpty();
     canvas->update();

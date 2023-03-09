@@ -39,7 +39,8 @@ class Canvas : public QWidget, BaseFigure {
     FType currentFigure = noData;
     Triangle current_triangle;
 
-    static constexpr int captionMarginBottom = 45;
+    static constexpr int captionMarginBottom = 60;
+    static constexpr int labelsMargin = 6;
 };
 
 #endif // CANVAS_HPP

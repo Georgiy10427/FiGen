@@ -19,7 +19,6 @@ class NGonFigure : public QObject, BaseFigure {
 
   private:
     void setupTableAppearence();
-    QStringList generateEnglishAlphabet(bool upper_case = true);
     QMap<int, double> getRowItems(int row);
     void updateProperties();
     void updatePropertiesInTable();
@@ -29,9 +28,18 @@ class NGonFigure : public QObject, BaseFigure {
     void drawNgonSuggestion();
     void setRowItems(int row, QMap<int, double> items,
                      bool rewriteEmpty = false);
+    void updateVHeaders();
+    void updateHeaders();
 
     const int minColumnQuantity = 3;
     const int maxColumnQuantity = 3;
+    const int frontsRow = 0, anglesRow = 1, sinValuesRow = 2, cosValuesRow = 3,
+              tanValuesRow = 4;
+    const int trigonametryFunctionsDecimal = 4;
+    const QStringList frontsLabels = {"BC", "AC", "AB"};
+    const QStringList anglesLabels = {"A", "B", "C"};
+    QStringList currentVHeaders = frontsLabels;
+
     QTableWidget *table = nullptr;
 
     QMap<int, double> angles;
