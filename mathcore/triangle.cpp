@@ -504,3 +504,41 @@ void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
     }
 #endif
 }
+
+void Triangle::generate(double minSide, double maxSide, bool isRectangular,
+                        bool isoscales, bool equileterial) {
+    using std::default_random_engine;
+    using std::uniform_real_distribution;
+
+    std::random_device RandomDevice;
+    unsigned seed = RandomDevice();
+    std::default_random_engine re(seed);
+
+    if (isRectangular) {
+        uniform_real_distribution<double> dist(minSide, maxSide);
+        if (not isoscales) {
+            a = dist(re);
+            b = dist(re);
+        } else {
+            a = b = dist(re);
+        }
+        c = sqrt(a * a + b * b);
+    } else if (isoscales) {
+        uniform_real_distribution<double> dist(minSide, maxSide);
+        a = b = dist(re);
+        uniform_real_distribution<double> distC(minSide, a + b - 1);
+        c = distC(re);
+    } else if (equileterial) {
+        uniform_real_distribution<double> dist(minSide, maxSide);
+        a = b = c = dist(re);
+    } else {
+        uniform_real_distribution<double> distSumAB(minSide, maxSide);
+        double sumAB = distSumAB(re);
+        uniform_real_distribution<double> distA(minSide, sumAB - 2);
+        uniform_real_distribution<double> distC(minSide, sumAB - 1);
+        a = distA(re);
+        b = sumAB - a;
+        c = distC(re);
+    }
+    addMissingInformation(frontsAsMap(), anglesAsMap());
+}

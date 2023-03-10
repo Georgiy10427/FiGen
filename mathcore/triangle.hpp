@@ -43,8 +43,8 @@ class Triangle : private BaseFigure {
     void roundFields();
 
     // generator
-    void generate(double minSide, double maxSide, bool isRectangular = false,
-                  bool isIsoscales = false, bool isEquileterial = false);
+    void generate(double minSide, double maxSide, bool rectangular = false,
+                  bool isoscales = false, bool equileterial = false);
 
     void print(std::string stepName = "", bool bigSeparator = false,
                bool debugOnly = true);

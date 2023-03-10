@@ -13,6 +13,7 @@ class NGonFigure : public QObject, BaseFigure {
   public:
     NGonFigure(QTableWidget *table, Canvas *canvas, QObject *parent = nullptr);
     void setTable(QTableWidget *table);
+    void setSidesAndAngles(QMap<int, double> sides, QMap<int, double> angles);
   public slots:
     void tableCellChanged(QTableWidgetItem *item);
     void resetData();

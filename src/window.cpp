@@ -114,6 +114,8 @@ Window::Window(QWidget *parent) : QWidget(parent) {
             &NGonFigure::resetData);
     connect(countBtn, &QPushButton::clicked, ngonfigure,
             &NGonFigure::calcNgon);
+    connect(randGenBtn, &QPushButton::clicked, this,
+            &Window::generateTriangle);
 
     connect(minRandSpinbox, &QDoubleSpinBox::valueChanged, this,
             &Window::validateRandGenerationRange);
@@ -141,7 +143,7 @@ void Window::deleteSelectedCells() {
 
 void Window::validateRandGenerationRange(double value) {
     if (minRandSpinbox->value() >= maxRandSpinbox->value()) {
-        maxRandSpinbox->setValue(minRandSpinbox->value() + 2);
+        maxRandSpinbox->setValue(minRandSpinbox->value() + 3);
     }
 }
 
@@ -153,6 +155,20 @@ void Window::validateRandGenerationProperties(int state) {
     if (isEquileterialChk->isChecked() and isIsoscalesChk->isChecked()) {
         isIsoscalesChk->setChecked(Qt::Unchecked);
     }
+}
+
+void Window::generateTriangle() {
+    validateRandGenerationProperties(0);
+    auto minBorder = minRandSpinbox->value();
+    auto maxBorder = maxRandSpinbox->value();
+    bool isEquileterial = isEquileterialChk->isChecked();
+    bool isRectangular = isRectangularChk->isChecked();
+    bool isIsoscales = isIsoscalesChk->isChecked();
+    auto triangle = Triangle();
+    triangle.generate(minBorder, maxBorder, isRectangular, isIsoscales,
+                      isEquileterial);
+    ngonfigure->setSidesAndAngles(triangle.frontsAsMap(),
+                                  triangle.anglesAsMap());
 }
 
 Window::~Window() {}

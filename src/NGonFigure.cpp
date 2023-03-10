@@ -208,3 +208,10 @@ void NGonFigure::resetData() {
     canvas->setCurrentFigureToEmpty();
     canvas->update();
 }
+
+void NGonFigure::setSidesAndAngles(QMap<int, double> sides,
+                                   QMap<int, double> angles) {
+    fronts = sides;
+    this->angles = angles;
+    calcNgon();
+}
