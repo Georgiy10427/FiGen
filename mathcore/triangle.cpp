@@ -468,6 +468,7 @@ bool Triangle::isValidTriangle() {
 }
 
 void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
+    return;
     auto separator = bigSeparator ? "\n--------------------------" : "---";
 #ifdef qDebug
     if (debugOnly) {
@@ -507,38 +508,32 @@ void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
 
 void Triangle::generate(double minSide, double maxSide, bool isRectangular,
                         bool isoscales, bool equileterial) {
-    using std::default_random_engine;
-    using std::uniform_real_distribution;
-
-    std::random_device RandomDevice;
-    unsigned seed = RandomDevice();
-    std::default_random_engine re(seed);
+    auto rd = std::random_device{};
+    auto rng = std::default_random_engine{rd()};
 
     if (isRectangular) {
-        uniform_real_distribution<double> dist(minSide, maxSide);
-        if (not isoscales) {
-            a = dist(re);
-            b = dist(re);
+        if (isoscales) {
+            a = b = randDouble(minSide, maxSide);
         } else {
-            a = b = dist(re);
+            a = randDouble(minSide, maxSide);
+            b = randDouble(minSide, maxSide);
         }
         c = sqrt(a * a + b * b);
     } else if (isoscales) {
-        uniform_real_distribution<double> dist(minSide, maxSide);
-        a = b = dist(re);
-        uniform_real_distribution<double> distC(minSide, a + b - 1);
-        c = distC(re);
+        a = b = randDouble(minSide, maxSide);
+        c = randDouble(minSide, a + b - minSide * 0.3);
+        std::vector<double> fronts = {a, b, c};
+        std::shuffle(fronts.begin(), fronts.end(), rng);
+        a = fronts[0];
+        b = fronts[1];
+        c = fronts[2];
     } else if (equileterial) {
-        uniform_real_distribution<double> dist(minSide, maxSide);
-        a = b = c = dist(re);
+        a = b = c = randDouble(minSide, maxSide);
     } else {
-        uniform_real_distribution<double> distSumAB(minSide, maxSide);
-        double sumAB = distSumAB(re);
-        uniform_real_distribution<double> distA(minSide, sumAB - 2);
-        uniform_real_distribution<double> distC(minSide, sumAB - 1);
-        a = distA(re);
-        b = sumAB - a;
-        c = distC(re);
+        a = randDouble(minSide, maxSide);
+        b = randDouble(minSide, maxSide);
+        gamma = randDouble(25, 100); /* the angle between these sides will
+                                        be placed in range [12, 100]*/
     }
-    addMissingInformation(frontsAsMap(), anglesAsMap());
+    addMissingInformation(frontsAsMap(), anglesAsMap(), false);
 }

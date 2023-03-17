@@ -13,3 +13,11 @@ void BaseFigure::kRound(double *value, double decimalPlaces) {
 double BaseFigure::kRound(double value, double decimalPlaces) {
     return round(value * pow(10, decimalPlaces)) / pow(10, decimalPlaces);
 }
+
+double BaseFigure::randDouble(double minValue, double maxValue) {
+    std::random_device RandomDevice;
+    unsigned seed = RandomDevice();
+    std::default_random_engine re(seed);
+    std::uniform_real_distribution<double> dist(minValue, maxValue);
+    return dist(re);
+}

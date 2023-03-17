@@ -6,6 +6,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QResource>
 #include <QShortcut>
@@ -32,8 +33,10 @@ class Window : public QWidget {
 
   private slots:
     void deleteSelectedCells();
-    void validateRandGenerationRange(double value);
     void validateRandGenerationProperties(int state);
     void generateTriangle();
+
+  private:
+    bool validateRandGenerationRange();
 };
 #endif // WINDOW_H

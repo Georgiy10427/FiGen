@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cfenv>
 #include <cmath>
+#include <random>
 
 class BaseFigure {
   protected:
@@ -12,6 +13,7 @@ class BaseFigure {
     double toDegrees(double radians);
     void kRound(double *value, double decimalPlaces = kdefaultDecimal);
     double kRound(double value, double decimalPlaces = kdefaultDecimal);
+    double randDouble(double minValue, double maxValue);
     double kPi = std::acos(-1);
     static constexpr int kdefaultDecimal = 2;
     static constexpr int kmaxDecimal = 6;

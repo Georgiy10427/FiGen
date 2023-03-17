@@ -45,7 +45,9 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     auto *intGenerationBox = new QHBoxLayout();
 
     minRandSpinbox->setRange(1.0, 4900);
+    minRandSpinbox->setValue(10);
     maxRandSpinbox->setRange(2, 5000);
+    maxRandSpinbox->setValue(100);
 
     minBorderBox->addWidget(minBorderLabel);
     minBorderBox->addWidget(minRandSpinbox);
@@ -117,11 +119,6 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     connect(randGenBtn, &QPushButton::clicked, this,
             &Window::generateTriangle);
 
-    connect(minRandSpinbox, &QDoubleSpinBox::valueChanged, this,
-            &Window::validateRandGenerationRange);
-    connect(maxRandSpinbox, &QDoubleSpinBox::valueChanged, this,
-            &Window::validateRandGenerationRange);
-
     connect(isEquileterialChk, &QCheckBox::stateChanged, this,
             &Window::validateRandGenerationProperties);
     connect(isIsoscalesChk, &QCheckBox::stateChanged, this,
@@ -141,10 +138,13 @@ void Window::deleteSelectedCells() {
     }
 }
 
-void Window::validateRandGenerationRange(double value) {
+bool Window::validateRandGenerationRange() {
     if (minRandSpinbox->value() >= maxRandSpinbox->value()) {
-        maxRandSpinbox->setValue(minRandSpinbox->value() + 3);
+        QMessageBox::warning(this, "Ошибка генерации",
+                             "Неверно задан диапазон генерации");
+        return false;
     }
+    return true;
 }
 
 void Window::validateRandGenerationProperties(int state) {
@@ -158,6 +158,9 @@ void Window::validateRandGenerationProperties(int state) {
 }
 
 void Window::generateTriangle() {
+    if (not validateRandGenerationRange()) {
+        return;
+    }
     validateRandGenerationProperties(0);
     auto minBorder = minRandSpinbox->value();
     auto maxBorder = maxRandSpinbox->value();

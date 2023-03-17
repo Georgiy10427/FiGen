@@ -43,7 +43,6 @@ void NGonFigure::updateHeaders() {
     table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     table->setHorizontalHeaderLabels(currentVHeaders);
     table->setVerticalHeaderLabels({"Сторона", "Угол", "cos", "sin", "tan"});
-    qDebug() << QSysInfo().productVersion();
     if ((QSysInfo::productVersion() == "10" ||
          QSysInfo::productVersion() == "11") &&
         QSysInfo::productType() == "windows") {
