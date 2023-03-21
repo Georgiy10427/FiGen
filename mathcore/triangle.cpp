@@ -508,8 +508,8 @@ void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
 
 void Triangle::generate(double minSide, double maxSide, bool isRectangular,
                         bool isoscales, bool equileterial) {
-    auto rd = std::random_device{};
-    auto rng = std::default_random_engine{rd()};
+    std::random_device rd;
+    auto rng = std::default_random_engine(rd());
 
     if (isRectangular) {
         if (isoscales) {
