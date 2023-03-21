@@ -11,6 +11,7 @@
 #include <QTextStream>
 #include <algorithm>
 #include <iostream>
+#include <memory.h>
 #include <ostream>
 #include <random>
 
@@ -44,13 +45,22 @@ class Triangle : private BaseFigure {
 
     // generator
     void generate(double minSide, double maxSide, bool rectangular = false,
-                  bool isoscales = false, bool equileterial = false);
+                  bool isoscales = false, bool equileterial = false,
+                  bool preferInt = true);
+    std::vector<int> generatePythogoreanThree(int minBorder, int maxBorder);
 
     void print(std::string stepName = "", bool bigSeparator = false,
                bool debugOnly = true);
+    std::vector<double> shuffleArray(std::vector<double> array);
 
-    QMap<int, double> anglesAsMap();
+    void unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles);
+    void unpackFromVectors(std::vector<double> fronts,
+                           std::vector<double> angles);
+
     QMap<int, double> frontsAsMap();
+    std::vector<double> frontsAsVector();
+    QMap<int, double> anglesAsMap();
+    std::vector<double> anglesAsVector();
 
     double a, b, c;
     double alpha, beta, gamma;
@@ -59,8 +69,6 @@ class Triangle : private BaseFigure {
     int fronts_precision = 0, angles_precision = 0;
 
   private:
-    void unpackFromMap(QMap<int, double> fronts, QMap<int, double> angles);
-
     /* finders: */
     void addMissingInformation(QMap<int, double> fronts,
                                QMap<int, double> angles,

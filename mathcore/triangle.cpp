@@ -79,6 +79,26 @@ void Triangle::unpackFromMap(QMap<int, double> fronts,
     }
 }
 
+void Triangle::unpackFromVectors(std::vector<double> fronts,
+                                 std::vector<double> angles) {
+    /* Move values from the vectors to class private fields. */
+    a = b = c = 0;
+    double *pfronts[] = {&a, &b, &c};
+    for (int i = 0; i < 3; ++i) {
+        if (fronts[i] > 0) {
+            *pfronts[i] = fronts[i];
+        }
+    }
+
+    alpha = beta = gamma = 0;
+    double *pangles[] = {&alpha, &beta, &gamma};
+    for (int i = 0; i < 3; ++i) {
+        if (angles[i] > 0) {
+            *pangles[i] = angles[i];
+        }
+    }
+}
+
 void Triangle::calculateMissingAngles() {
     /* Implements the inverse cosine theorem to calculate missing angles. */
     using std::acos;
@@ -396,6 +416,14 @@ QMap<int, double> Triangle::frontsAsMap() {
     return fronts;
 }
 
+std::vector<double> Triangle::frontsAsVector() {
+    return {a > 0 ? a : 0, b > 0 ? b : 0, c > 0 ? c : 0};
+}
+
+std::vector<double> Triangle::anglesAsVector() {
+    return {alpha > 0 ? alpha : 0, beta > 0 ? beta : 0, gamma > 0 ? gamma : 0};
+}
+
 void Triangle::roundFields() {
     /* Rounds fronts and angles, while they are correct. */
     using std::pow;
@@ -506,34 +534,77 @@ void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
 #endif
 }
 
-void Triangle::generate(double minSide, double maxSide, bool isRectangular,
-                        bool isoscales, bool equileterial) {
+std::vector<double> Triangle::shuffleArray(std::vector<double> array) {
     std::random_device rd;
     auto rng = std::default_random_engine(rd());
+    std::shuffle(array.begin(), array.end(), rng);
+    return array;
+}
 
+std::vector<int> Triangle::generatePythogoreanThree(int minBorder,
+                                                    int maxBorder) {
+    int n3 = 0;
+    int a = 2;
+    std::vector<std::vector<int>> variants = {};
+    while (n3 < maxBorder) {
+        for (int b = 1; b <= a; b++) {
+            int n1 = a * a - b * b;
+            int n2 = 2 * a * b;
+            n3 = a * a + b * b;
+            if (n3 > maxBorder)
+                break;
+            if (n3 < minBorder)
+                continue;
+            if (n1 == 0 or n2 == 0 or n3 == 0)
+                break;
+            variants.push_back({n1, n2, n3});
+        }
+        a = a + 1;
+    }
+    if (variants.size() > 0) {
+        int resultIndx = rand(0, variants.size() - 1);
+        return variants[resultIndx];
+    } else {
+        return {};
+    }
+}
+
+void Triangle::generate(double minSide, double maxSide, bool isRectangular,
+                        bool isoscales, bool equileterial, bool preferInt) {
     if (isRectangular) {
         if (isoscales) {
-            a = b = randDouble(minSide, maxSide);
+            a = b = rand(minSide, maxSide, !preferInt);
+            c = sqrt(a * a + b * b);
+            unpackFromVectors(shuffleArray(frontsAsVector()),
+                              anglesAsVector());
         } else {
-            a = randDouble(minSide, maxSide);
-            b = randDouble(minSide, maxSide);
+            std::vector<int> p3inThisRange;
+            if (preferInt) {
+                p3inThisRange = generatePythogoreanThree(minSide, maxSide);
+            }
+            if (preferInt && p3inThisRange.size() == 3) {
+                a = p3inThisRange[0];
+                b = p3inThisRange[1];
+                c = p3inThisRange[2];
+            } else {
+                a = rand(minSide, maxSide, !preferInt);
+                b = rand(minSide, maxSide, !preferInt);
+                c = sqrt(a * a + b * b);
+            }
         }
-        c = sqrt(a * a + b * b);
+        unpackFromVectors(shuffleArray(frontsAsVector()), anglesAsVector());
     } else if (isoscales) {
-        a = b = randDouble(minSide, maxSide);
-        c = randDouble(minSide, a + b - minSide * 0.3);
-        std::vector<double> fronts = {a, b, c};
-        std::shuffle(fronts.begin(), fronts.end(), rng);
-        a = fronts[0];
-        b = fronts[1];
-        c = fronts[2];
+        a = b = rand(minSide, maxSide, !preferInt);
+        c = rand(minSide, a + b - minSide * 0.3, !preferInt);
+        unpackFromVectors(shuffleArray(frontsAsVector()), anglesAsVector());
+
     } else if (equileterial) {
-        a = b = c = randDouble(minSide, maxSide);
+        a = b = c = rand(minSide, maxSide, !preferInt);
     } else {
-        a = randDouble(minSide, maxSide);
-        b = randDouble(minSide, maxSide);
-        gamma = randDouble(25, 100); /* the angle between these sides will
-                                        be placed in range [12, 100]*/
+        a = rand(minSide, maxSide, !preferInt);
+        b = rand(minSide, maxSide, !preferInt);
+        gamma = rand(25, 110, !preferInt); /* the angle between these sides
+                                        will be placed in range [12, 100]*/
     }
-    addMissingInformation(frontsAsMap(), anglesAsMap(), false);
+    addMissingInformation(frontsAsMap(), anglesAsMap(), true);
 }

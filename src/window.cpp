@@ -37,8 +37,9 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     this->minRandSpinbox = new QDoubleSpinBox();
     this->maxRandSpinbox = new QDoubleSpinBox();
     auto *intGenerationCheckboxLabel =
-        new QLabel("Стороны треугольника в целых числах");
+        new QLabel("Предпочитать целые числа, если это возможно");
     this->intRandGeneration = new QCheckBox();
+    this->intRandGeneration->setChecked(true);
 
     auto *minBorderBox = new QHBoxLayout();
     auto *maxBorderBox = new QHBoxLayout();
@@ -155,6 +156,14 @@ void Window::validateRandGenerationProperties(int state) {
     if (isEquileterialChk->isChecked() and isIsoscalesChk->isChecked()) {
         isIsoscalesChk->setChecked(Qt::Unchecked);
     }
+    if (isRectangularChk->isChecked() && intRandGeneration->isChecked()) {
+        if (minRandSpinbox->value() < 3 || maxRandSpinbox->value() < 5) {
+            QMessageBox::critical(
+                this, "Ошибка генерации",
+                "Невозможно выполнить условия в целых числах.");
+            intRandGeneration->setCheckState(Qt::Unchecked);
+        }
+    }
 }
 
 void Window::generateTriangle() {
@@ -167,9 +176,11 @@ void Window::generateTriangle() {
     bool isEquileterial = isEquileterialChk->isChecked();
     bool isRectangular = isRectangularChk->isChecked();
     bool isIsoscales = isIsoscalesChk->isChecked();
+    bool preferInt = intRandGeneration->isChecked();
     auto triangle = Triangle();
     triangle.generate(minBorder, maxBorder, isRectangular, isIsoscales,
-                      isEquileterial);
+                      isEquileterial, preferInt);
+    ngonfigure->resetData();
     ngonfigure->setSidesAndAngles(triangle.frontsAsMap(),
                                   triangle.anglesAsMap());
 }

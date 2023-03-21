@@ -13,7 +13,9 @@ class BaseFigure {
     double toDegrees(double radians);
     void kRound(double *value, double decimalPlaces = kdefaultDecimal);
     double kRound(double value, double decimalPlaces = kdefaultDecimal);
-    double randDouble(double minValue, double maxValue);
+    double rand(double minValue, double maxValue, bool isFloat = false,
+                int decimal = 3);
+    double randInt(double minValue, double maxValue, int decimal);
     double kPi = std::acos(-1);
     static constexpr int kdefaultDecimal = 2;
     static constexpr int kmaxDecimal = 6;
