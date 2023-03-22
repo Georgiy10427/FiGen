@@ -545,7 +545,7 @@ std::vector<uint64_t> Triangle::generatePythogoreanThree(int minBorder,
                                                          int maxBorder) {
     uint64_t n3 = 0;
     uint64_t a = 2;
-    std::vector<std::vector<uint64_t>> variants = {};
+    std::list<std::vector<uint64_t>> variants = {};
     while (n3 < (uint64_t)maxBorder) {
         for (uint64_t b = 1; b <= a; b++) {
             uint64_t n1 = a * a - b * b;
@@ -563,7 +563,9 @@ std::vector<uint64_t> Triangle::generatePythogoreanThree(int minBorder,
     }
     if (variants.size() > 0) {
         uint64_t resultIndx = rand(0, variants.size() - 1);
-        return variants[resultIndx];
+        auto result = variants.begin();
+        std::advance(result, resultIndx);
+        return *result;
     } else {
         return {};
     }
