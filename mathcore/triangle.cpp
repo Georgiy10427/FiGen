@@ -557,6 +557,8 @@ std::vector<uint64_t> Triangle::generatePythogoreanThree(int minBorder,
                 continue;
             if (n1 == 0 or n2 == 0 or n3 == 0)
                 break;
+            if (std::min(n1, std::min(n2, n3)) < (uint64_t)minBorder)
+                continue;
             variants.push_back({n1, n2, n3});
         }
         a = a + 1;

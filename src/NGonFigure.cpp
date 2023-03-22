@@ -42,30 +42,16 @@ void NGonFigure::updateVHeaders() {
 void NGonFigure::updateHeaders() {
     table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     table->setHorizontalHeaderLabels(currentVHeaders);
-    table->setVerticalHeaderLabels({"Сторона", "Угол", "cos", "sin", "tan"});
+    table->setVerticalHeaderLabels(HHeaders);
     if ((QSysInfo::productVersion() == "10" ||
          QSysInfo::productVersion() == "11") &&
         QSysInfo::productType() == "windows") {
-        table->setStyleSheet("QHeaderView::section{"
-                             "border-top:0px solid #D8D8D8;"
-                             "border-left:0px solid #D8D8D8;"
-                             "border-right:1px solid #D8D8D8;"
-                             "border-bottom: 1px solid #D8D8D8;"
-                             "background-color:white;"
-                             "padding:4px;"
-                             "}"
-                             "QTableCornerButton::section{"
-                             "border-top:0px solid #D8D8D8;"
-                             "border-left:0px solid #D8D8D8;"
-                             "border-right:1px solid #D8D8D8;"
-                             "border-bottom: 1px solid #D8D8D8;"
-                             "background-color:white;"
-                             "}");
+        table->setStyleSheet(windowsCSSPatch);
     }
 }
 
 void NGonFigure::setupTableAppearence() {
-    table->setRowCount(5);
+    table->setRowCount(HHeaders.size());
     table->setColumnCount(minColumnQuantity);
     table->clear();
     updateHeaders();
@@ -74,7 +60,8 @@ void NGonFigure::setupTableAppearence() {
         for (int j = 0; j < maxColumnQuantity; ++j) {
             QTableWidgetItem *item = new QTableWidgetItem();
             item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-            if (i == sinValuesRow || i == cosValuesRow || i == tanValuesRow)
+            if (i == sinValuesRow || i == cosValuesRow || i == tanValuesRow ||
+                i == ctanValuesRow)
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             table->setItem(i, j, item);
         }
@@ -85,7 +72,6 @@ void NGonFigure::tableCellChanged(QTableWidgetItem *item) {
     updateProperties();
     alignItemTextAtCenter(item);
     drawNgonSuggestion();
-    updateAnglesFunctions();
     updatePropertiesInTable();
 }
 
@@ -121,11 +107,9 @@ QMap<int, double> NGonFigure::getRowItems(int row) {
 void NGonFigure::updateProperties() {
     fronts.clear();
     angles.clear();
-    sin_values.clear();
-    cos_values.clear();
-    tan_values.clear();
     fronts = getRowItems(frontsRow);
     angles = getRowItems(anglesRow);
+    updateAnglesFunctions();
 }
 
 void NGonFigure::setRowItems(int row, QMap<int, double> items,
@@ -149,6 +133,7 @@ void NGonFigure::updatePropertiesInTable() {
     setRowItems(sinValuesRow, cos_values, true);
     setRowItems(cosValuesRow, sin_values, true);
     setRowItems(tanValuesRow, tan_values, true);
+    setRowItems(ctanValuesRow, ctan_values, true);
 }
 
 void NGonFigure::alignItemTextAtCenter(QTableWidgetItem *item) {
@@ -159,15 +144,17 @@ void NGonFigure::updateAnglesFunctions() {
     cos_values.clear();
     sin_values.clear();
     tan_values.clear();
-    for (int i = 0; i < angles.size(); ++i) {
-        if (angles.contains(i)) {
-            cos_values.insert(i, kRound(cos(toRadians(angles[i])),
-                                        trigonametryFunctionsDecimal));
-            sin_values.insert(i, kRound(sin(toRadians(angles[i])),
-                                        trigonametryFunctionsDecimal));
-            tan_values.insert(i, kRound(tan(toRadians(angles[i])),
-                                        trigonametryFunctionsDecimal));
-        }
+    ctan_values.clear();
+    for (auto i : angles.keys()) {
+        cos_values.insert(i, kRound(cos(toRadians(angles[i])),
+                                    trigonametryFunctionsDecimal));
+        sin_values.insert(i, kRound(sin(toRadians(angles[i])),
+                                    trigonametryFunctionsDecimal));
+        tan_values.insert(i, kRound(tan(toRadians(angles[i])),
+                                    trigonametryFunctionsDecimal));
+        ctan_values.insert(
+            i, kRound(cos(toRadians(angles[i])) / sin(toRadians(angles[i])),
+                      trigonametryFunctionsDecimal));
     }
 }
 

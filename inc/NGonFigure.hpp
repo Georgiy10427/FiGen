@@ -33,22 +33,39 @@ class NGonFigure : public QObject, BaseFigure {
     void updateVHeaders();
     void updateHeaders();
 
-    const int minColumnQuantity = 3;
-    const int maxColumnQuantity = 3;
+    static constexpr int minColumnQuantity = 3;
+    static constexpr int maxColumnQuantity = 3;
     const int frontsRow = 0, anglesRow = 1, sinValuesRow = 2, cosValuesRow = 3,
-              tanValuesRow = 4;
+              tanValuesRow = 4, ctanValuesRow = 5;
     const int trigonametryFunctionsDecimal = 4;
     const QStringList frontsLabels = {"BC", "AC", "AB"};
     const QStringList anglesLabels = {"A", "B", "C"};
     QStringList currentVHeaders = frontsLabels;
+    const QStringList HHeaders = {"Сторона", "Угол", "cos",
+                                  "sin",     "tan",  "ctg"};
 
     QTableWidget *table = nullptr;
 
     QMap<int, double> angles;
     QMap<int, double> fronts;
-    QMap<int, double> cos_values, sin_values, tan_values;
+    QMap<int, double> cos_values, sin_values, tan_values, ctan_values;
 
     Canvas *canvas;
+    const QString windowsCSSPatch = "QHeaderView::section{"
+                                    "border-top:0px solid #D8D8D8;"
+                                    "border-left:0px solid #D8D8D8;"
+                                    "border-right:1px solid #D8D8D8;"
+                                    "border-bottom: 1px solid #D8D8D8;"
+                                    "background-color:white;"
+                                    "padding:4px;"
+                                    "}"
+                                    "QTableCornerButton::section{"
+                                    "border-top:0px solid #D8D8D8;"
+                                    "border-left:0px solid #D8D8D8;"
+                                    "border-right:1px solid #D8D8D8;"
+                                    "border-bottom: 1px solid #D8D8D8;"
+                                    "background-color:white;"
+                                    "}";
 };
 
 #endif // NGONFIGURE_HPP
