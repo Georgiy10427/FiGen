@@ -69,6 +69,9 @@ void NGonFigure::setupTableAppearence() {
 }
 
 void NGonFigure::tableCellChanged(QTableWidgetItem *item) {
+    if (isUpdate)
+        return;
+    qDebug() << "change";
     updateProperties();
     alignItemTextAtCenter(item);
     drawNgonSuggestion();
@@ -114,13 +117,14 @@ void NGonFigure::updateProperties() {
 
 void NGonFigure::setRowItems(int row, QMap<int, double> items,
                              bool rewriteEmpty) {
+    qDebug() << "call";
     for (int i = 0; i < table->columnCount(); ++i) {
         QTableWidgetItem *cell = table->item(row, i);
         if (cell == nullptr) {
-            continue;
+            break;
         }
         if (items.contains(i)) {
-            cell->setText(QString::number(items[i]));
+            cell->setText(QString::number(items.value(i)));
         } else if (rewriteEmpty) {
             cell->setText("");
         }
@@ -128,12 +132,16 @@ void NGonFigure::setRowItems(int row, QMap<int, double> items,
 }
 
 void NGonFigure::updatePropertiesInTable() {
+    qDebug() << "scope update...:" << angles;
+    isUpdate = true;
     setRowItems(frontsRow, fronts);
     setRowItems(anglesRow, angles);
+
     setRowItems(sinValuesRow, cos_values, true);
     setRowItems(cosValuesRow, sin_values, true);
     setRowItems(tanValuesRow, tan_values, true);
     setRowItems(ctanValuesRow, ctan_values, true);
+    isUpdate = false;
 }
 
 void NGonFigure::alignItemTextAtCenter(QTableWidgetItem *item) {
@@ -181,7 +189,10 @@ void NGonFigure::calcNgon() {
         }
     }
     updateAnglesFunctions();
-    updatePropertiesInTable();
+
+    qDebug() << "scope: calcNgon:" << this->angles;
+    updatePropertiesInTable(); // here
+
     drawNgonSuggestion();
 }
 
@@ -196,8 +207,8 @@ void NGonFigure::resetData() {
 }
 
 void NGonFigure::setSidesAndAngles(QMap<int, double> sides,
-                                   QMap<int, double> angles) {
+                                   QMap<int, double> pangles) {
     fronts = sides;
-    this->angles = angles;
+    this->angles = pangles;
     calcNgon();
 }

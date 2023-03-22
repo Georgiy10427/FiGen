@@ -49,6 +49,7 @@ class NGonFigure : public QObject, BaseFigure {
     QMap<int, double> angles;
     QMap<int, double> fronts;
     QMap<int, double> cos_values, sin_values, tan_values, ctan_values;
+    bool isUpdate = false;
 
     Canvas *canvas;
     const QString windowsCSSPatch = "QHeaderView::section{"
