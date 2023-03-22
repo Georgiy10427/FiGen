@@ -130,6 +130,8 @@ Window::Window(QWidget *parent) : QWidget(parent) {
             &Window::validateRandGenerationProperties);
     connect(isRectangularChk, &QCheckBox::stateChanged, this,
             &Window::validateRandGenerationProperties);
+    // show random triangle to user
+    generateTriangle();
 }
 
 void Window::setupIcon() {
@@ -152,7 +154,7 @@ bool Window::validateRandGenerationRange() {
     return true;
 }
 
-void Window::validateRandGenerationProperties(int state) {
+void Window::validateRandGenerationProperties() {
     if (isRectangularChk->isChecked() == isEquileterialChk->isChecked()) {
         isRectangularChk->setChecked(Qt::Unchecked);
         isEquileterialChk->setChecked(Qt::Unchecked);
@@ -162,7 +164,7 @@ void Window::validateRandGenerationProperties(int state) {
     }
     if (isRectangularChk->isChecked() && intRandGeneration->isChecked()) {
         if (minRandSpinbox->value() < 3 || maxRandSpinbox->value() < 5) {
-            QMessageBox::critical(
+            QMessageBox::warning(
                 this, "Ошибка генерации",
                 "Невозможно выполнить условия в целых числах.");
             intRandGeneration->setCheckState(Qt::Unchecked);
@@ -174,7 +176,7 @@ void Window::generateTriangle() {
     if (not validateRandGenerationRange()) {
         return;
     }
-    validateRandGenerationProperties(0);
+    validateRandGenerationProperties();
     auto minBorder = minRandSpinbox->value();
     auto maxBorder = maxRandSpinbox->value();
     bool isEquileterial = isEquileterialChk->isChecked();
@@ -182,9 +184,9 @@ void Window::generateTriangle() {
     bool isIsoscales = isIsoscalesChk->isChecked();
     bool preferInt = intRandGeneration->isChecked();
     auto triangle = Triangle();
+    ngonfigure->resetData();
     triangle.generate(minBorder, maxBorder, isRectangular, isIsoscales,
                       isEquileterial, preferInt);
-    ngonfigure->resetData();
     ngonfigure->setSidesAndAngles(triangle.frontsAsMap(),
                                   triangle.anglesAsMap());
 }
