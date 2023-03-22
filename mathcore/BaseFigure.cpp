@@ -20,7 +20,8 @@ double BaseFigure::rand(double minValue, double maxValue, bool isFloat,
     unsigned seed = RandomDevice();
     std::default_random_engine re(seed);
     std::uniform_real_distribution<double> doubleDist(minValue, maxValue);
-    std::uniform_int_distribution<int> intDist(minValue, maxValue);
+    std::uniform_int_distribution<int> intDist(std::trunc(minValue),
+                                               std::trunc(maxValue));
     if (isFloat) {
         return kRound(doubleDist(re), decimal);
     } else {

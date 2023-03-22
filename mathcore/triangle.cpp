@@ -541,19 +541,19 @@ std::vector<double> Triangle::shuffleArray(std::vector<double> array) {
     return array;
 }
 
-std::vector<int> Triangle::generatePythogoreanThree(int minBorder,
-                                                    int maxBorder) {
-    int n3 = 0;
-    int a = 2;
-    std::vector<std::vector<int>> variants = {};
-    while (n3 < maxBorder) {
-        for (int b = 1; b <= a; b++) {
-            int n1 = a * a - b * b;
-            int n2 = 2 * a * b;
+std::vector<uint64_t> Triangle::generatePythogoreanThree(int minBorder,
+                                                         int maxBorder) {
+    uint64_t n3 = 0;
+    uint64_t a = 2;
+    std::vector<std::vector<uint64_t>> variants = {};
+    while (n3 < (uint64_t)maxBorder) {
+        for (uint64_t b = 1; b <= a; b++) {
+            uint64_t n1 = a * a - b * b;
+            uint64_t n2 = 2 * a * b;
             n3 = a * a + b * b;
-            if (n3 > maxBorder)
+            if (n3 > (uint64_t)maxBorder)
                 break;
-            if (n3 < minBorder)
+            if (n3 < (uint64_t)minBorder)
                 continue;
             if (n1 == 0 or n2 == 0 or n3 == 0)
                 break;
@@ -562,7 +562,7 @@ std::vector<int> Triangle::generatePythogoreanThree(int minBorder,
         a = a + 1;
     }
     if (variants.size() > 0) {
-        int resultIndx = rand(0, variants.size() - 1);
+        uint64_t resultIndx = rand(0, variants.size() - 1);
         return variants[resultIndx];
     } else {
         return {};
@@ -571,14 +571,15 @@ std::vector<int> Triangle::generatePythogoreanThree(int minBorder,
 
 void Triangle::generate(double minSide, double maxSide, bool isRectangular,
                         bool isoscales, bool equileterial, bool preferInt) {
+    bool preferFloat = !preferInt;
     if (isRectangular) {
         if (isoscales) {
-            a = b = rand(minSide, maxSide, !preferInt);
+            a = b = rand(minSide, maxSide, preferFloat);
             c = sqrt(a * a + b * b);
             unpackFromVectors(shuffleArray(frontsAsVector()),
                               anglesAsVector());
         } else {
-            std::vector<int> p3inThisRange;
+            std::vector<uint64_t> p3inThisRange;
             if (preferInt) {
                 p3inThisRange = generatePythogoreanThree(minSide, maxSide);
             }
@@ -587,24 +588,30 @@ void Triangle::generate(double minSide, double maxSide, bool isRectangular,
                 b = p3inThisRange[1];
                 c = p3inThisRange[2];
             } else {
-                a = rand(minSide, maxSide, !preferInt);
-                b = rand(minSide, maxSide, !preferInt);
+                a = rand(minSide, maxSide, preferFloat);
+                b = rand(minSide, maxSide, preferFloat);
                 c = sqrt(a * a + b * b);
             }
         }
         unpackFromVectors(shuffleArray(frontsAsVector()), anglesAsVector());
     } else if (isoscales) {
-        a = b = rand(minSide, maxSide, !preferInt);
-        c = rand(minSide, a + b - minSide * 0.3, !preferInt);
+        a = b = rand(minSide, maxSide, preferFloat);
+        c = rand(minSide, a + b - minSide * 0.3, preferFloat);
         unpackFromVectors(shuffleArray(frontsAsVector()), anglesAsVector());
-
     } else if (equileterial) {
-        a = b = c = rand(minSide, maxSide, !preferInt);
+        a = rand(minSide, maxSide, preferFloat);
+        b = a;
+        c = a;
+        alpha = beta = gamma = 60;
     } else {
-        a = rand(minSide, maxSide, !preferInt);
-        b = rand(minSide, maxSide, !preferInt);
-        gamma = rand(25, 110, !preferInt); /* the angle between these sides
-                                        will be placed in range [12, 100]*/
+        for (uint64_t limit = std::pow(10, 5); limit > 0; --limit) {
+            a = rand(minSide, maxSide, preferFloat);
+            b = rand(minSide, maxSide, preferFloat);
+            c = rand(minSide, maxSide, preferFloat);
+            if (isValidFronts()) {
+                break;
+            }
+        }
     }
     addMissingInformation(frontsAsMap(), anglesAsMap(), true);
 }

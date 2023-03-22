@@ -20,6 +20,7 @@ class test_triangle : public QObject {
     void test_rectangular_triangles();
     void test_equileterial_triangles();
     void test_calc_square();
+    void test_random_generation();
 };
 
 test_triangle::test_triangle() {}
@@ -208,6 +209,19 @@ void test_triangle::test_calc_square() {
     // fronts: 23, 17, 15
     // square: ~127
     QCOMPARE(Triangle({{0, 23}, {1, 17}, {2, 15}}, {}).square, 127);
+}
+
+void test_triangle::test_random_generation() {
+    for (uint64_t i = 10; i > 0; i--) {
+        auto t = Triangle();
+        t.generate(1, std::pow(10, 15));
+        QCOMPARE(t.isValidFronts(), true);
+    }
+    for (uint64_t i = 10; i > 0; i--) {
+        auto t = Triangle();
+        t.generate(3, std::pow(10, 5), true);
+        QCOMPARE(t.isValidFronts(), true);
+    }
 }
 
 QTEST_APPLESS_MAIN(test_triangle)

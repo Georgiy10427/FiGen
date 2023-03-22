@@ -102,6 +102,8 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     calcFigureShortcut->setKey(Qt::CTRL | Qt::Key_C);
     QShortcut *deleteTablePart = new QShortcut(this);
     deleteTablePart->setKey(Qt::Key_Delete);
+    QShortcut *generateShortcut = new QShortcut(this);
+    generateShortcut->setKey(Qt::CTRL | Qt::Key_G);
 
     layout->addWidget(canvas);
     layout->addWidget(sidebar);
@@ -110,6 +112,8 @@ Window::Window(QWidget *parent) : QWidget(parent) {
             &NGonFigure::resetData);
     connect(calcFigureShortcut, &QShortcut::activated, ngonfigure,
             &NGonFigure::calcNgon);
+    connect(generateShortcut, &QShortcut::activated, this,
+            &Window::generateTriangle);
     connect(deleteTablePart, &QShortcut::activated, this,
             &Window::deleteSelectedCells);
 

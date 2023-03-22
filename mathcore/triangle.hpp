@@ -47,7 +47,8 @@ class Triangle : private BaseFigure {
     void generate(double minSide, double maxSide, bool rectangular = false,
                   bool isoscales = false, bool equileterial = false,
                   bool preferInt = true);
-    std::vector<int> generatePythogoreanThree(int minBorder, int maxBorder);
+    std::vector<uint64_t> generatePythogoreanThree(int minBorder,
+                                                   int maxBorder);
 
     void print(std::string stepName = "", bool bigSeparator = false,
                bool debugOnly = true);
