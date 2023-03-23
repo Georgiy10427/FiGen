@@ -43,7 +43,7 @@ class Triangle : private BaseFigure {
     bool isValidRectangularTriangle();
     void roundFields();
 
-    // generator
+    // generators
     void generate(double minSide, double maxSide, bool rectangular = false,
                   bool isoscales = false, bool equileterial = false,
                   bool preferInt = true);
@@ -63,8 +63,8 @@ class Triangle : private BaseFigure {
     QMap<int, double> anglesAsMap();
     std::vector<double> anglesAsVector();
 
-    double a, b, c;
-    double alpha, beta, gamma;
+    double a = 0, b = 0, c = 0;
+    double alpha = 0, beta = 0, gamma = 0;
     double square;
     double circumscribedCircleRadius, inscribedCircleRadius;
     int fronts_precision = 0, angles_precision = 0;

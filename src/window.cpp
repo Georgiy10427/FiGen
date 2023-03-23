@@ -10,7 +10,7 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 
     this->table = new QTableWidget(this);
     this->canvas = new Canvas(this);
-    this->ngonfigure = new NGonFigure(table, canvas, this);
+    this->tableDispatcher = new TableDispatcher(table, canvas, this);
 
     auto *sidebar = new QTabWidget(this);
 
@@ -108,19 +108,19 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     layout->addWidget(canvas);
     layout->addWidget(sidebar);
 
-    connect(flushTableShortcut, &QShortcut::activated, ngonfigure,
-            &NGonFigure::resetData);
-    connect(calcFigureShortcut, &QShortcut::activated, ngonfigure,
-            &NGonFigure::calcNgon);
+    connect(flushTableShortcut, &QShortcut::activated, tableDispatcher,
+            &TableDispatcher::resetData);
+    connect(calcFigureShortcut, &QShortcut::activated, tableDispatcher,
+            &TableDispatcher::calcNgon);
     connect(generateShortcut, &QShortcut::activated, this,
             &Window::generateTriangle);
     connect(deleteTablePart, &QShortcut::activated, this,
             &Window::deleteSelectedCells);
 
-    connect(clearTableBtn, &QPushButton::clicked, ngonfigure,
-            &NGonFigure::resetData);
-    connect(countBtn, &QPushButton::clicked, ngonfigure,
-            &NGonFigure::calcNgon);
+    connect(clearTableBtn, &QPushButton::clicked, tableDispatcher,
+            &TableDispatcher::resetData);
+    connect(countBtn, &QPushButton::clicked, tableDispatcher,
+            &TableDispatcher::calcNgon);
     connect(randGenBtn, &QPushButton::clicked, this,
             &Window::generateTriangle);
 
@@ -184,11 +184,11 @@ void Window::generateTriangle() {
     bool isIsoscales = isIsoscalesChk->isChecked();
     bool preferInt = intRandGeneration->isChecked();
     auto triangle = Triangle();
-    ngonfigure->resetData();
+    tableDispatcher->resetData();
     triangle.generate(minBorder, maxBorder, isRectangular, isIsoscales,
                       isEquileterial, preferInt);
-    ngonfigure->setSidesAndAngles(triangle.frontsAsMap(),
-                                  triangle.anglesAsMap());
+    tableDispatcher->setSidesAndAngles(triangle.frontsAsMap(),
+                                       triangle.anglesAsMap());
 }
 
 Window::~Window() {}

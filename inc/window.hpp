@@ -14,7 +14,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "NGonFigure.hpp"
+#include "TableDispatcher.hpp"
 #include "canvas.hpp"
 
 class Window : public QWidget {
@@ -25,7 +25,7 @@ class Window : public QWidget {
   private:
     void setupIcon();
     QTableWidget *table;
-    NGonFigure *ngonfigure;
+    TableDispatcher *tableDispatcher;
     Canvas *canvas;
     QCheckBox *intRandGeneration, *isEquileterialChk, *isIsoscalesChk,
         *isRectangularChk;
@@ -33,7 +33,7 @@ class Window : public QWidget {
 
   private slots:
     void deleteSelectedCells();
-    void validateRandGenerationProperties(int state);
+    void validateRandGenerationProperties();
     void generateTriangle();
 
   private:

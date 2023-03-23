@@ -1,32 +1,33 @@
-#include "NGonFigure.hpp"
+#include "TableDispatcher.hpp"
 
-NGonFigure::NGonFigure(QTableWidget *table, Canvas *canvas, QObject *parent)
+TableDispatcher::TableDispatcher(QTableWidget *table, Canvas *canvas,
+                                 QObject *parent)
     : QObject(parent) {
     setTable(table);
     this->canvas = canvas;
 }
 
-void NGonFigure::setTable(QTableWidget *table) {
+void TableDispatcher::setTable(QTableWidget *table) {
     if (this->table == nullptr) {
         this->table = table;
         setupTableAppearence();
         connect(this->table, &QTableWidget::itemChanged, this,
-                &NGonFigure::tableCellChanged);
+                &TableDispatcher::tableCellChanged);
         connect(this->table, &QTableWidget::itemSelectionChanged, this,
-                &NGonFigure::updateVHeaders);
+                &TableDispatcher::updateVHeaders);
     } else {
         disconnect(this->table, &QTableWidget::itemChanged, this,
-                   &NGonFigure::tableCellChanged);
+                   &TableDispatcher::tableCellChanged);
         disconnect(this->table, &QTableWidget::itemSelectionChanged, this,
-                   &NGonFigure::updateVHeaders);
+                   &TableDispatcher::updateVHeaders);
         this->table = table;
         setupTableAppearence();
         connect(this->table, &QTableWidget::itemChanged, this,
-                &NGonFigure::tableCellChanged);
+                &TableDispatcher::tableCellChanged);
     }
 }
 
-void NGonFigure::updateVHeaders() {
+void TableDispatcher::updateVHeaders() {
     if (table->selectedItems().size() == 1) {
         if (table->selectedItems()[0]->row() == frontsRow) {
             currentVHeaders = frontsLabels;
@@ -39,7 +40,7 @@ void NGonFigure::updateVHeaders() {
     updateHeaders();
 }
 
-void NGonFigure::updateHeaders() {
+void TableDispatcher::updateHeaders() {
     table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     table->setHorizontalHeaderLabels(currentVHeaders);
     table->setVerticalHeaderLabels(HHeaders);
@@ -50,7 +51,7 @@ void NGonFigure::updateHeaders() {
     }
 }
 
-void NGonFigure::setupTableAppearence() {
+void TableDispatcher::setupTableAppearence() {
     table->setRowCount(HHeaders.size());
     table->setColumnCount(minColumnQuantity);
     table->clear();
@@ -68,17 +69,16 @@ void NGonFigure::setupTableAppearence() {
     }
 }
 
-void NGonFigure::tableCellChanged(QTableWidgetItem *item) {
-    if (isUpdate)
+void TableDispatcher::tableCellChanged(QTableWidgetItem *item) {
+    if (tableLock)
         return;
-    qDebug() << "change";
     updateProperties();
     alignItemTextAtCenter(item);
     drawNgonSuggestion();
     updatePropertiesInTable();
 }
 
-QMap<int, double> NGonFigure::getRowItems(int row) {
+QMap<int, double> TableDispatcher::getRowItems(int row) {
     QMap<int, double> items;
     double cellValue;
     QString cellContent;
@@ -107,7 +107,7 @@ QMap<int, double> NGonFigure::getRowItems(int row) {
     return items;
 }
 
-void NGonFigure::updateProperties() {
+void TableDispatcher::updateProperties() {
     fronts.clear();
     angles.clear();
     fronts = getRowItems(frontsRow);
@@ -115,9 +115,8 @@ void NGonFigure::updateProperties() {
     updateAnglesFunctions();
 }
 
-void NGonFigure::setRowItems(int row, QMap<int, double> items,
-                             bool rewriteEmpty) {
-    qDebug() << "call";
+void TableDispatcher::setRowItems(int row, QMap<int, double> items,
+                                  bool rewriteEmpty) {
     for (int i = 0; i < table->columnCount(); ++i) {
         QTableWidgetItem *cell = table->item(row, i);
         if (cell == nullptr) {
@@ -131,9 +130,8 @@ void NGonFigure::setRowItems(int row, QMap<int, double> items,
     }
 }
 
-void NGonFigure::updatePropertiesInTable() {
-    qDebug() << "scope update...:" << angles;
-    isUpdate = true;
+void TableDispatcher::updatePropertiesInTable() {
+    tableLock = true;
     setRowItems(frontsRow, fronts);
     setRowItems(anglesRow, angles);
 
@@ -141,14 +139,14 @@ void NGonFigure::updatePropertiesInTable() {
     setRowItems(cosValuesRow, sin_values, true);
     setRowItems(tanValuesRow, tan_values, true);
     setRowItems(ctanValuesRow, ctan_values, true);
-    isUpdate = false;
+    tableLock = false;
 }
 
-void NGonFigure::alignItemTextAtCenter(QTableWidgetItem *item) {
+void TableDispatcher::alignItemTextAtCenter(QTableWidgetItem *item) {
     item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
-void NGonFigure::updateAnglesFunctions() {
+void TableDispatcher::updateAnglesFunctions() {
     cos_values.clear();
     sin_values.clear();
     tan_values.clear();
@@ -166,7 +164,7 @@ void NGonFigure::updateAnglesFunctions() {
     }
 }
 
-void NGonFigure::drawNgonSuggestion() {
+void TableDispatcher::drawNgonSuggestion() {
     if (angles.size() <= 3 && fronts.size() <= 3) {
         Triangle triangle(fronts, angles);
         if (triangle.isValidTriangle()) {
@@ -180,7 +178,7 @@ void NGonFigure::drawNgonSuggestion() {
     }
 }
 
-void NGonFigure::calcNgon() {
+void TableDispatcher::calcNgon() {
     if (angles.size() <= 3 && fronts.size() <= 3) {
         Triangle triangle(fronts, angles);
         if (triangle.isValidTriangle()) {
@@ -189,14 +187,11 @@ void NGonFigure::calcNgon() {
         }
     }
     updateAnglesFunctions();
-
-    qDebug() << "scope: calcNgon:" << this->angles;
-    updatePropertiesInTable(); // here
-
+    updatePropertiesInTable();
     drawNgonSuggestion();
 }
 
-void NGonFigure::resetData() {
+void TableDispatcher::resetData() {
     angles.clear();
     fronts.clear();
     table->clear();
@@ -206,8 +201,8 @@ void NGonFigure::resetData() {
     canvas->update();
 }
 
-void NGonFigure::setSidesAndAngles(QMap<int, double> sides,
-                                   QMap<int, double> pangles) {
+void TableDispatcher::setSidesAndAngles(QMap<int, double> sides,
+                                        QMap<int, double> pangles) {
     fronts = sides;
     this->angles = pangles;
     calcNgon();

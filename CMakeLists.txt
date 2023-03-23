@@ -21,7 +21,7 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/window.cpp inc/window.hpp
         inc/canvas.hpp src/canvas.cpp
-        inc/NGonFigure.hpp src/NGonFigure.cpp
+        inc/TableDispatcher.hpp src/TableDispatcher.cpp
         resource.qrc
 )
 

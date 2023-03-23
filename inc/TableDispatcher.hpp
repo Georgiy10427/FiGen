@@ -1,5 +1,5 @@
-#ifndef NGONFIGURE_HPP
-#define NGONFIGURE_HPP
+#ifndef TABLEDISPATCHER_H
+#define TABLEDISPATCHER_H
 
 #include "canvas.hpp"
 #include <QFrame>
@@ -9,9 +9,10 @@
 #include <QTableWidgetItem>
 #include <triangle.hpp>
 
-class NGonFigure : public QObject, BaseFigure {
+class TableDispatcher : public QObject, BaseFigure {
   public:
-    NGonFigure(QTableWidget *table, Canvas *canvas, QObject *parent = nullptr);
+    TableDispatcher(QTableWidget *table, Canvas *canvas,
+                    QObject *parent = nullptr);
     void setTable(QTableWidget *table);
     void setSidesAndAngles(QMap<int, double> sides, QMap<int, double> angles);
   public slots:
@@ -49,7 +50,7 @@ class NGonFigure : public QObject, BaseFigure {
     QMap<int, double> angles;
     QMap<int, double> fronts;
     QMap<int, double> cos_values, sin_values, tan_values, ctan_values;
-    bool isUpdate = false;
+    bool tableLock = false;
 
     Canvas *canvas;
     const QString windowsCSSPatch = "QHeaderView::section{"
@@ -69,4 +70,4 @@ class NGonFigure : public QObject, BaseFigure {
                                     "}";
 };
 
-#endif // NGONFIGURE_HPP
+#endif // TABLEDISPATCHER_H

@@ -600,12 +600,10 @@ void Triangle::generate(double minSide, double maxSide, bool isRectangular,
         unpackFromVectors(shuffleArray(frontsAsVector()), anglesAsVector());
     } else if (isoscales) {
         a = b = rand(minSide, maxSide, preferFloat);
-        c = rand(minSide, a + b - minSide * 0.3, preferFloat);
+        c = rand(minSide, a + b - minSide * 0.001, preferFloat);
         unpackFromVectors(shuffleArray(frontsAsVector()), anglesAsVector());
     } else if (equileterial) {
-        a = rand(minSide, maxSide, preferFloat);
-        b = a;
-        c = a;
+        a = b = c = rand(minSide, maxSide, preferFloat);
         alpha = beta = gamma = 60;
     } else {
         for (uint64_t limit = std::pow(10, 5); limit > 0; --limit) {
@@ -617,5 +615,5 @@ void Triangle::generate(double minSide, double maxSide, bool isRectangular,
             }
         }
     }
-    addMissingInformation(frontsAsMap(), anglesAsMap(), true);
+    addMissingInformation(frontsAsMap(), anglesAsMap(), false);
 }
