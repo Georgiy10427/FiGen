@@ -206,7 +206,7 @@ void TableDispatcher::setSidesAndAngles(QMap<int, double> sides,
 double TableDispatcher::translateToDegrees(QString angle) {
     angle.replace(",", ".");
     angle.replace(" ", "");
-    QStringList segments = angle.split(":");
+    QStringList segments = angle.split("'");
     while (segments.size() > 3) {
         segments.removeLast();
     }
@@ -233,8 +233,8 @@ QString TableDispatcher::toMinuteAndSecond(double angle) {
     if (minutes + seconds == 0) {
         return QString("%1").arg(degrees);
     } else if (seconds == 0) {
-        return QString("%1: %2").arg(degrees).arg(minutes);
+        return QString("%1' %2'").arg(degrees).arg(minutes);
     } else {
-        return QString("%1: %2: %3").arg(degrees).arg(minutes).arg(seconds);
+        return QString("%1' %2' %3'").arg(degrees).arg(minutes).arg(seconds);
     }
 }

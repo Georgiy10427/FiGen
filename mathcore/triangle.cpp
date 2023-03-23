@@ -233,14 +233,16 @@ bool Triangle::isValidRectangularTriangle() {
 void Triangle::calculateCircumscribedCircleRadius() {
     /* Returns true, if the triangle has angles equals 60 degrees. */
     if (a > 0 && b > 0 && c > 0 && square > 0) {
-        circumscribedCircleRadius = (a * b * c) / (4 * square);
+        circumscribedCircleRadius =
+            kRound((a * b * c) / (4 * square), fronts_precision);
     }
 }
 
 void Triangle::calculateInscribedCircleRadius() {
     /* Calculate the inscribed circle radius from the sides and square. */
     if (a > 0 && b > 0 && c > 0 && square > 0) {
-        inscribedCircleRadius = square / ((a + b + c) / 2);
+        inscribedCircleRadius =
+            kRound(square / ((a + b + c) / 2), fronts_precision);
     }
 }
 
@@ -459,9 +461,6 @@ void Triangle::roundFields() {
         kRound(&c, frontsPrecision);
         kRound(&alpha, anglesPrecision);
         kRound(&beta, anglesPrecision);
-        kRound(&square, frontsPrecision);
-        kRound(&inscribedCircleRadius, frontsPrecision);
-        kRound(&circumscribedCircleRadius, frontsPrecision);
         gamma = 180 - (alpha + beta);
     };
     rounding(fronts_precision, angles_precision);
