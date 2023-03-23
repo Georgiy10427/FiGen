@@ -53,11 +53,11 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
         }
     }
 
-    calculateProperties();
-    print("4. Square and radious were calculated.");
-
     roundFields();
-    print("5. Rounded sides and angles values.", !rollbackOnFail);
+    print("4. Rounded sides and angles values.", !rollbackOnFail);
+
+    calculateProperties();
+    print("5. Square and radious were calculated.");
 
     if (rollbackOnFail) {
         if (isValidTriangle()) {
