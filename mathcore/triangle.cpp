@@ -518,7 +518,6 @@ bool Triangle::isValidTriangle() {
 }
 
 void Triangle::print(std::string stepName, bool bigSeparator, bool debugOnly) {
-    return;
     auto separator = bigSeparator ? "\n--------------------------" : "---";
 #ifdef qDebug
     if (debugOnly) {
