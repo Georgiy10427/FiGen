@@ -34,6 +34,8 @@ class TableDispatcher : public QObject, BaseFigure {
                      bool rewriteEmpty = false);
     void updateVHeaders();
     void updateHeaders();
+    double translateToDegrees(QString value);
+    QString toMinuteAndSecond(double angle);
 
     static constexpr int minColumnQuantity = 3;
     static constexpr int maxColumnQuantity = 3;

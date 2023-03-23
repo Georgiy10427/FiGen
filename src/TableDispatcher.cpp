@@ -6,6 +6,7 @@ TableDispatcher::TableDispatcher(QTableWidget *table, Canvas *canvas,
     setTable(table);
     this->canvas = canvas;
     this->decimalBox = decimalBox;
+    qDebug() << toMinuteAndSecond(39.425);
 }
 
 void TableDispatcher::setTable(QTableWidget *table) {
@@ -85,8 +86,6 @@ QMap<int, double> TableDispatcher::getRowItems(int row) {
     QString cellContent;
     QTableWidgetItem *currentCell;
 
-    bool err;
-
     for (int i = 0; i < table->columnCount(); ++i) {
         currentCell = table->item(row, i);
 
@@ -94,13 +93,8 @@ QMap<int, double> TableDispatcher::getRowItems(int row) {
             continue;
         }
 
-        cellContent = currentCell->text();
-        cellContent = cellContent.replace(",", ".");
-        cellValue = cellContent.toDouble(&err);
-
-        if (err && !cellContent.isEmpty() && !cellContent.isNull() &&
-            cellValue) {
-            items.insert(i, cellValue);
+        if (translateToDegrees(currentCell->text()) != 0) {
+            items.insert(i, translateToDegrees(currentCell->text()));
         } else {
             continue;
         }
@@ -124,7 +118,11 @@ void TableDispatcher::setRowItems(int row, QMap<int, double> items,
             break;
         }
         if (items.contains(i)) {
-            cell->setText(QString::number(items.value(i)));
+            if (row == anglesRow) {
+                cell->setText(toMinuteAndSecond(items[i]));
+            } else {
+                cell->setText(QString::number(items[i]));
+            }
         } else if (rewriteEmpty) {
             cell->setText("");
         }
@@ -205,4 +203,40 @@ void TableDispatcher::setSidesAndAngles(QMap<int, double> sides,
     fronts = sides;
     this->angles = pangles;
     calcNgon();
+}
+
+double TableDispatcher::translateToDegrees(QString angle) {
+    angle.replace(",", ".");
+    angle.replace(" ", "");
+    QStringList segments = angle.split(";");
+    while (segments.size() > 3) {
+        segments.removeLast();
+    }
+    double degrees = 0, minute = 0, second = 0;
+    bool err;
+    if (segments.size() >= 1) {
+        degrees = segments[0].toDouble(&err);
+    } else {
+        return 0;
+    }
+    if (segments.size() >= 2) {
+        minute = segments[1].toDouble(&err);
+    }
+    if (segments.size() == 3) {
+        second = segments[2].toDouble(&err);
+    }
+    return degrees + (minute / 60) + (second / 3600);
+}
+
+QString TableDispatcher::toMinuteAndSecond(double angle) {
+    double degrees = std::trunc(angle);
+    double minutes = std::trunc((angle - degrees) * 60);
+    double seconds = kRound(((angle - degrees) * 60 - minutes) * 60, 5);
+    if (minutes + seconds == 0) {
+        return QString("%1").arg(degrees);
+    } else if (seconds == 0) {
+        return QString("%1; %2").arg(degrees).arg(minutes);
+    } else {
+        return QString("%1; %2; %3").arg(degrees).arg(minutes).arg(seconds);
+    }
 }

@@ -145,10 +145,8 @@ void Canvas::drawTriangle() {
 
     QRect titlePosition = rect();
     titlePosition.setY(captionYPosition);
-    painter.drawText(titlePosition, Qt::AlignHCenter,
-                     getTriangleTypeName(current_triangle));
 
-    QString squarePropertyCaption;
+    QString squarePropertyCaption, title;
     if (current_triangle.isValidTriangle()) {
         QString squareCaptionTemplate = size().height() > 250
                                             ? "S = %1\nr = %2\nR = %3"
@@ -158,12 +156,15 @@ void Canvas::drawTriangle() {
                 .arg(current_triangle.square)
                 .arg(current_triangle.inscribedCircleRadius)
                 .arg(current_triangle.circumscribedCircleRadius);
+        painter.drawText(QRectF(titlePosition.x(), trianglePoints[0].y() + 15,
+                                titlePosition.width(), titlePosition.height()),
+                         Qt::AlignHCenter, squarePropertyCaption);
+        title = getTriangleTypeName(current_triangle);
+
     } else {
-        squarePropertyCaption = "Это не треугольник.";
+        title = "Это не треугольник.";
     }
-    painter.drawText(QRectF(titlePosition.x(), trianglePoints[0].y() + 15,
-                            titlePosition.width(), titlePosition.height()),
-                     Qt::AlignHCenter, squarePropertyCaption);
+    painter.drawText(titlePosition, Qt::AlignHCenter, title);
 }
 
 void Canvas::setCurrentFigureToEmpty() {
