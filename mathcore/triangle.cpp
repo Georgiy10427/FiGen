@@ -52,6 +52,7 @@ void Triangle::addMissingInformation(QMap<int, double> fronts,
             print("- Results of calculating a missing side and angle");
         }
     }
+
     calculateProperties();
     print("4. Square and radious were calculated.");
 
@@ -470,12 +471,14 @@ void Triangle::roundFields() {
              ++d) {
             unpackFromMap(decimalFronts, decimalAngles);
             rounding(d, d);
+            fronts_precision = angles_precision = d;
         }
     }
     if (not isValidTriangle() && wasValid) {
         for (int d = 0; d < kmaxDecimal && !isValidTriangle(); ++d) {
             unpackFromMap(decimalFronts, decimalAngles);
             rounding(d, d);
+            fronts_precision = angles_precision = d;
         }
     }
 }
