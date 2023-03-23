@@ -459,6 +459,9 @@ void Triangle::roundFields() {
         kRound(&c, frontsPrecision);
         kRound(&alpha, anglesPrecision);
         kRound(&beta, anglesPrecision);
+        kRound(&square, frontsPrecision);
+        kRound(&inscribedCircleRadius, frontsPrecision);
+        kRound(&circumscribedCircleRadius, frontsPrecision);
         gamma = 180 - (alpha + beta);
     };
     rounding(fronts_precision, angles_precision);
