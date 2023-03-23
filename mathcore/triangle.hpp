@@ -21,6 +21,9 @@ class Triangle : private BaseFigure {
     Triangle(QMap<int, double> fronts, QMap<int, double> angles,
              int fronts_precision = 0, int angles_precision = 0,
              bool rollbackOnFail = true);
+    Triangle(std::vector<double> fronts, std::vector<double> angles,
+             int fronts_precision = 0, int angles_precision = 0,
+             bool rollbackOnFail = true);
 
     /* validators */
     bool isValidTriangle();

@@ -13,7 +13,7 @@ QRectF Canvas::posAtCenter(QRectF rect) {
 }
 
 void Canvas::paintEvent(QPaintEvent *) {
-    if (currentFigure == FType::FTriangle) {
+    if (currentFigure == ErrorType::FTriangle) {
         drawTriangle();
     } else {
         drawEmpty();
@@ -22,7 +22,7 @@ void Canvas::paintEvent(QPaintEvent *) {
 
 void Canvas::setCurrentFigure(Triangle t) {
     this->current_triangle = t;
-    currentFigure = FTriangle;
+    currentFigure = ErrorType::FTriangle;
     update();
 }
 
@@ -149,7 +149,7 @@ void Canvas::drawTriangle() {
                      getTriangleTypeName(current_triangle));
 
     QString squarePropertyCaption;
-    if (current_triangle.isValidTriangle() && current_triangle.square != 0) {
+    if (current_triangle.isValidTriangle()) {
         QString squareCaptionTemplate = size().height() > 250
                                             ? "S = %1\nr = %2\nR = %3"
                                             : "S = %1; r = %2; R = %3";
@@ -159,7 +159,7 @@ void Canvas::drawTriangle() {
                 .arg(current_triangle.inscribedCircleRadius)
                 .arg(current_triangle.circumscribedCircleRadius);
     } else {
-        squarePropertyCaption = "Некорректный треугольник.";
+        squarePropertyCaption = "Это не треугольник.";
     }
     painter.drawText(QRectF(titlePosition.x(), trianglePoints[0].y() + 15,
                             titlePosition.width(), titlePosition.height()),
@@ -167,18 +167,51 @@ void Canvas::drawTriangle() {
 }
 
 void Canvas::setCurrentFigureToEmpty() {
-    this->currentFigure = FType::noData;
+    this->currentFigure = ErrorType::noData;
     update();
 }
 
 void Canvas::drawEmpty() {
     QPainter painter(this);
-    QPen pen = QPen(QPalette().color(QPalette::Text), 3);
+    QPen pen = QPen(QPalette().color(QPalette::Highlight), 3);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setFont(QFont("Droid Sans", 14, 10, false));
+    painter.setFont(QFont("Droid Sans", 15, 600, false));
     painter.setPen(pen);
-    painter.drawText(rect(), Qt::AlignCenter,
-                     "Не хватает данных\nдля отображения");
+
+    QPolygon trianglePoints =
+        getTriangleGeometry(size(), Triangle(std::vector<double>({79, 71, 85}),
+                                             std::vector<double>()));
+    painter.drawLines(
+        getTriangleShape(size(), Triangle(std::vector<double>({79, 71, 85}),
+                                          std::vector<double>())));
+    painter.drawEllipse(trianglePoints[0], 2, 2);
+    painter.drawEllipse(trianglePoints[1], 2, 2);
+    painter.drawEllipse(trianglePoints[2], 2, 2);
+
+    pen.setColor(QPalette().color(QPalette::WindowText));
+    painter.setPen(pen);
+
+    // drawing points name
+    QPointF captionA = trianglePoints[2], captionB = trianglePoints[0],
+            captionC = trianglePoints[1];
+    captionA.setX(trianglePoints[2].x() - labelsMargin);
+    captionA.setY(trianglePoints[2].y() - labelsMargin);
+
+    captionB.setX(trianglePoints[0].x() - labelsMargin * 3.2);
+    captionB.setY(trianglePoints[0].y() + labelsMargin);
+
+    captionC.setX(trianglePoints[1].x() + labelsMargin);
+    captionC.setY(trianglePoints[1].y() + labelsMargin + labelsMargin / 4);
+
+    painter.drawText(captionA, "A");
+    painter.drawText(captionB, "B");
+    painter.drawText(captionC, "C");
+
+    int captionYPosition = trianglePoints[2].y() - captionMarginBottom;
+
+    QRect titlePosition = rect();
+    titlePosition.setY(captionYPosition);
+    painter.drawText(titlePosition, Qt::AlignHCenter, "Недостаточно данных");
 }
 
 QString Canvas::getTriangleTypeName(Triangle triangle) {

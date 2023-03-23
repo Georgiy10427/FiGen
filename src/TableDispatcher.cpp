@@ -1,10 +1,11 @@
 #include "TableDispatcher.hpp"
 
 TableDispatcher::TableDispatcher(QTableWidget *table, Canvas *canvas,
-                                 QObject *parent)
+                                 QSpinBox *decimalBox, QObject *parent)
     : QObject(parent) {
     setTable(table);
     this->canvas = canvas;
+    this->decimalBox = decimalBox;
 }
 
 void TableDispatcher::setTable(QTableWidget *table) {
@@ -165,14 +166,11 @@ void TableDispatcher::updateAnglesFunctions() {
 }
 
 void TableDispatcher::drawNgonSuggestion() {
-    if (angles.size() <= 3 && fronts.size() <= 3) {
-        Triangle triangle(fronts, angles);
-        if (triangle.isValidTriangle()) {
-            canvas->setCurrentFigure(triangle);
-            canvas->update();
-        } else {
-            canvas->setCurrentFigureToEmpty();
-        }
+    if (angles.size() + fronts.size() >= 3) {
+        Triangle triangle(fronts, angles, decimalBox->value(),
+                          decimalBox->value());
+        canvas->setCurrentFigure(triangle);
+        canvas->update();
     } else {
         canvas->setCurrentFigureToEmpty();
     }
@@ -180,7 +178,8 @@ void TableDispatcher::drawNgonSuggestion() {
 
 void TableDispatcher::calcNgon() {
     if (angles.size() <= 3 && fronts.size() <= 3) {
-        Triangle triangle(fronts, angles);
+        Triangle triangle(fronts, angles, decimalBox->value(),
+                          decimalBox->value());
         if (triangle.isValidTriangle()) {
             angles = triangle.anglesAsMap();
             fronts = triangle.frontsAsMap();

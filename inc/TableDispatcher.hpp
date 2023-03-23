@@ -4,6 +4,7 @@
 #include "canvas.hpp"
 #include <QFrame>
 #include <QHeaderView>
+#include <QSpinBox>
 #include <QSysInfo>
 #include <QTableWidget>
 #include <QTableWidgetItem>
@@ -11,7 +12,7 @@
 
 class TableDispatcher : public QObject, BaseFigure {
   public:
-    TableDispatcher(QTableWidget *table, Canvas *canvas,
+    TableDispatcher(QTableWidget *table, Canvas *canvas, QSpinBox *decimalBox,
                     QObject *parent = nullptr);
     void setTable(QTableWidget *table);
     void setSidesAndAngles(QMap<int, double> sides, QMap<int, double> angles);
@@ -46,6 +47,7 @@ class TableDispatcher : public QObject, BaseFigure {
                                   "sin",     "tan",  "ctg"};
 
     QTableWidget *table = nullptr;
+    QSpinBox *decimalBox;
 
     QMap<int, double> angles;
     QMap<int, double> fronts;

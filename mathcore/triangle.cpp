@@ -10,6 +10,15 @@ Triangle::Triangle(QMap<int, double> fronts, QMap<int, double> angles,
     addMissingInformation(fronts, angles, rollbackOnFail);
 }
 
+Triangle::Triangle(std::vector<double> fronts, std::vector<double> angles,
+                   int fronts_precision, int angles_precision,
+                   bool rollbackOnFail) {
+    unpackFromVectors(fronts, angles);
+    this->fronts_precision = fronts_precision;
+    this->angles_precision = angles_precision;
+    addMissingInformation(frontsAsMap(), anglesAsMap(), rollbackOnFail);
+}
+
 void Triangle::addMissingInformation(QMap<int, double> fronts,
                                      QMap<int, double> angles,
                                      bool rollbackOnFail) {
@@ -85,16 +94,24 @@ void Triangle::unpackFromVectors(std::vector<double> fronts,
     a = b = c = 0;
     double *pfronts[] = {&a, &b, &c};
     for (int i = 0; i < 3; ++i) {
-        if (fronts[i] > 0) {
-            *pfronts[i] = fronts[i];
+        try {
+            if (fronts.at(i) > 0) {
+                *pfronts[i] = fronts.at(i);
+            }
+        } catch (const std::out_of_range &e) {
+            continue;
         }
     }
 
     alpha = beta = gamma = 0;
     double *pangles[] = {&alpha, &beta, &gamma};
     for (int i = 0; i < 3; ++i) {
-        if (angles[i] > 0) {
-            *pangles[i] = angles[i];
+        try {
+            if (angles.at(i) > 0) {
+                *pangles[i] = angles.at(i);
+            }
+        } catch (const std::out_of_range &e) {
+            continue;
         }
     }
 }

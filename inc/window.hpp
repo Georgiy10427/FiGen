@@ -30,6 +30,7 @@ class Window : public QWidget {
     QCheckBox *intRandGeneration, *isEquileterialChk, *isIsoscalesChk,
         *isRectangularChk;
     QDoubleSpinBox *minRandSpinbox, *maxRandSpinbox;
+    QSpinBox *decimalSpinbox;
 
   private slots:
     void deleteSelectedCells();

@@ -10,7 +10,6 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 
     this->table = new QTableWidget(this);
     this->canvas = new Canvas(this);
-    this->tableDispatcher = new TableDispatcher(table, canvas, this);
 
     auto *sidebar = new QTabWidget(this);
 
@@ -34,8 +33,11 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     auto *rangeParamsLayout = new QVBoxLayout();
     auto *minBorderLabel = new QLabel("Минимальное значение (включительно):");
     auto *maxBorderLabel = new QLabel("Максимальное значение (включительно):");
+    auto *decimalLabel =
+        new QLabel("Количество знаков после запятой при расчетах: ");
     this->minRandSpinbox = new QDoubleSpinBox();
     this->maxRandSpinbox = new QDoubleSpinBox();
+    this->decimalSpinbox = new QSpinBox();
     auto *intGenerationCheckboxLabel =
         new QLabel("Предпочитать целые числа, если это возможно");
     this->intRandGeneration = new QCheckBox();
@@ -43,12 +45,14 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 
     auto *minBorderBox = new QHBoxLayout();
     auto *maxBorderBox = new QHBoxLayout();
+    auto *decimalBox = new QHBoxLayout();
     auto *intGenerationBox = new QHBoxLayout();
 
     minRandSpinbox->setRange(1.0, 4900);
     minRandSpinbox->setValue(10);
     maxRandSpinbox->setRange(2, 5000);
     maxRandSpinbox->setValue(100);
+    decimalSpinbox->setRange(0, 6);
 
     minBorderBox->addWidget(minBorderLabel);
     minBorderBox->addWidget(minRandSpinbox);
@@ -58,12 +62,17 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     maxBorderBox->addWidget(maxRandSpinbox);
     maxBorderBox->setSpacing(10);
 
+    decimalBox->addWidget(decimalLabel);
+    decimalBox->addWidget(decimalSpinbox);
+    decimalBox->setSpacing(10);
+
     intGenerationBox->addWidget(intGenerationCheckboxLabel);
     intGenerationBox->addWidget(intRandGeneration);
     intGenerationBox->setSpacing(31);
 
     rangeParamsLayout->addItem(minBorderBox);
     rangeParamsLayout->addItem(maxBorderBox);
+    rangeParamsLayout->addItem(decimalBox);
     rangeParamsLayout->addItem(intGenerationBox);
     rangeParamsLayout->setSpacing(5);
 
@@ -108,6 +117,9 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     layout->addWidget(canvas);
     layout->addWidget(sidebar);
 
+    this->tableDispatcher =
+        new TableDispatcher(table, canvas, decimalSpinbox, this);
+
     connect(flushTableShortcut, &QShortcut::activated, tableDispatcher,
             &TableDispatcher::resetData);
     connect(calcFigureShortcut, &QShortcut::activated, tableDispatcher,
@@ -130,6 +142,7 @@ Window::Window(QWidget *parent) : QWidget(parent) {
             &Window::validateRandGenerationProperties);
     connect(isRectangularChk, &QCheckBox::stateChanged, this,
             &Window::validateRandGenerationProperties);
+
     // show random triangle to user
     generateTriangle();
 }
@@ -183,7 +196,8 @@ void Window::generateTriangle() {
     bool isRectangular = isRectangularChk->isChecked();
     bool isIsoscales = isIsoscalesChk->isChecked();
     bool preferInt = intRandGeneration->isChecked();
-    auto triangle = Triangle();
+    auto triangle =
+        Triangle({0}, {}, decimalSpinbox->value(), decimalSpinbox->value());
     tableDispatcher->resetData();
     triangle.generate(minBorder, maxBorder, isRectangular, isIsoscales,
                       isEquileterial, preferInt);

@@ -35,8 +35,8 @@ class Canvas : public QWidget, BaseFigure {
     int distance(QPoint p1, QPoint p2);
     QString getTriangleTypeName(Triangle triangle);
 
-    enum FType { FTriangle, FQuadrilateral, noData };
-    FType currentFigure = noData;
+    enum ErrorType { noData, NotValid, FTriangle };
+    ErrorType currentFigure = noData;
     Triangle current_triangle;
 
     static constexpr int captionMarginBottom = 60;
