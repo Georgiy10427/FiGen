@@ -20,8 +20,8 @@ FiGen не создает временных файлов на вашем уст
 Компиляция производится со статической компоновкой Qt 6, либо с версией Qt6 установленной в вашей системе.  
 ### Статическая сборка
 Следуйте указаниям из официальной документации:  
-* [Сборка Qt6 под Windows] (https://doc.qt.io/qt-6/windows-building.html)  
-* [Сборка Qt6 под Linux] (https://doc.qt.io/qt-6/linux.html)  
+* [Сборка Qt6 под Windows](https://doc.qt.io/qt-6/windows-building.html)  
+* [Сборка Qt6 под Linux](https://doc.qt.io/qt-6/linux.html)  
 
 Для сборки программы FiGen достаточно компонента `qtbase`. Далее необходимо указать папку со статической сборкой Qt и собрать проект в режиме "Релиз".  
 Флаги сборки для Linux: `../configure -debug-and-release -commercial -confirm-license -static -glib -opengl -no-icu -xkbcommon -qt-libjpeg -qt-zlib -qt-libpng -system-freetype -qt-pcre -qt-harfbuzz -no-sm -fontconfig -nomake tests -prefix PATH_FOR_INSTALL`  
