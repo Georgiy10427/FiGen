@@ -16,4 +16,4 @@
 FiGen не создает временных файлов на вашем устройстве, имея полностью портативный формат. 
 | | Windows | Linux (glibc 2.33) |
 | - | ----- | ------------- |
-| Версия | [1.0](https://github.com/Georgiy10427/FiGen/releases/download/v1.0.0/figen-x64-windows.exe) | [1.0](https://github.com/Georgiy10427/FiGen/releases/download/v1.0.0/figen-poc-linux-x64-glibc2-33) |
+| Версия | [1.0.1](https://github.com/Georgiy10427/FiGen/releases/download/1.0.1/figen-1.0.1-windows-x64.exe) | [1.0.1](https://github.com/Georgiy10427/FiGen/releases/download/1.0.1/figen-1.0.1-linux-glibc2-33) |
